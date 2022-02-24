@@ -1,5 +1,5 @@
 # test arrays
-from ngehtutil.arraymodel.arrays import get_array_list, get_default_array, get_station_list, \
+from ngehtutil.array import get_array_list, get_default_array, get_station_list, \
     get_station_info, Station
 import unittest
 

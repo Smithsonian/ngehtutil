@@ -1,8 +1,8 @@
 # test costs
 import unittest
 from pandas import Series
-from ngehtutil.costmodel.cost_model import calculate_costs
-from ngehtutil.costmodel.cost_config import CostConfig
+from ngehtutil.cost import calculate_costs
+from ngehtutil.cost import CostConfig
 
 class TestClass(unittest.TestCase):
 

@@ -1,5 +1,5 @@
 # test arrays
-from ngehtutil.sourcemodel.sources import get_source_description, get_source_list, \
+from ngehtutil.source import get_source_description, get_source_list, \
     get_default_source, get_source_info, get_source_image
 import unittest
 import PIL
