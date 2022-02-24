@@ -57,7 +57,10 @@ class Station:
 
         # stn['lat'] = np.arcsin( stn['z']/np.sqrt(stn['x']**2+stn['y']**2+stn['z']**2) ) * 180./np.pi
         # stn['lon'] = np.arctan2( stn['y'], stn['x'] ) * 180.0/np.pi
-        self.data_rate = self.recording_bandwidth * self.recording_frequencies * \
+
+
+    def data_rate(self):
+        return self.recording_bandwidth * self.recording_frequencies * \
                         self.polarizations * self.sidebands * self.bit_depth * 2 # nyquist
 
 
