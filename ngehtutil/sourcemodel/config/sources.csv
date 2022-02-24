@@ -1,0 +1,3 @@
+NAME,DESCRIPTION,86_IMAGE,230_IMAGE,345_IMAGE,480_IMAGE,690_IMAGE,86_DATA,230_DATA,345_DATA,480_DATA,690_DATA,TAPER
+M87,Chael M87,M87_86GHz_Chael.png,M87_230GHz_Chael.png,M87_345GHz_Chael.png,,,M87_86GHz_Chael.fits,M87_230GHz_Chael.fits,M87_345GHz_Chael.fits,,,FALSE
+SgrA*,Zachary Gelles,,MADa+0.94inc17rhigh20freq229.1.png,MADa+0.94inc17rhigh20freq347.6.png,,,,MADa+0.94inc17rhigh20freq229.1.fits,MADa+0.94inc17rhigh20freq347.6.fits,,,FALSE
