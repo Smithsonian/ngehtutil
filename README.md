@@ -1,7 +1,7 @@
 # ngeht-util - Utilities for ngEHT
 
 *ngeht-util* is a library of python modules to help in the design, development, and analysis of the
-ngEHT VLBI telescope. It consists of four models: array, source, target, and cost.
+ngEHT VLBI telescope. It consists of four models: station, source, target, and cost.
 
 ## Installation
 
@@ -10,13 +10,13 @@ is installed directly from github. To install the latest plus its dependencies:
 
     pip install git+https://github.com/ngeht/ngeht-util.git
 
-## Array Module
+## Station Module
 
-The Array module contains models and functions to manage the definition of VLBI arrays and stations.
+The Statiopn module contains models and functions to manage the definition of VLBI arrays and stations.
 
 ### Usage
 
-    from ngehtutil.arraymodel import *
+    from ngehtutil.station import *
 
 This library provides the following functions:
 
@@ -51,39 +51,33 @@ Station objects have the following attributes:
 * site_or_region: whether "station" indicates a specific installation or a region
 * owner: institution operating the station
 * antenna_count: number of dishes at the site (if preexisting, 1 otherwise by default)
-* dish_size
-* rms_surf_error
-* region
-* polar_nonpolar
-* eht
-* existing_infrastructure
-* site_acquisition
-* radiometer_testing
-* uv_M87
-* uv_SgrA*
-
-
-* recording_bandwidth = 8
-* recording_frequencies = 2
-* polarizations = 2
-* sidebands = 2
-* bit_depth = 2
+* dish_size: size of each dish at the station, in meters (6 by default)
+* rms_surf_error: surface error (0 by default)
+* region: which continent
+* polar_nonpolar: is the station in a polar region or non-polar
+* eht: 1 if the station is currently part of the eht array
+* existing_infrastructure: information about the state of the site
+* site_acquisition: whether or not the site needs to be acquired to build a station there
+* radiometer_testing: whether or not the site has had radiometer testing to measure PWV
+* uv_M87: whether the station can contribute to observation of M87
+* uv_SgrA: whether the station can contribute to observation of SgrA*
+* recording_bandwidth: bandwidth of each sideband (default: 8)
+* recording_frequencies: number of simultaneous recording frequencies (default: 2)
+* polarizations: number of polarizations captured (default: 2)
+* sidebands: number of sidebands captured (default: 2)
+* bit_depth: number of bits per sample (default: 2)
 
 Any parameter can be set as keyword arguments when instantiating a Station.
 
     >>> x = Station(name='newstation', sidebands=2)
 
-* data_rate
+Station objects have the following methods:
 
+* rate = data_rate() - returns the data rate produced by the station in Gbps
+* (x, y, z) = xyz() - return station location in XYZ
+* s = SEFD(freq, elev, filled=0.7, month=5) - calculates SEFD given parameters
 
-
-### Usage
-
-Include the module in your PYTHONPATH or install it as a submodule in another project.
-
-    >>> from arraymodel import *
-    >>> get_station_list()
-    ['AA', 'AP', 'AZ', 'BA', 'BR', 'CI', 'CT', 'GB', 'GL', 'GR', 'HA', 'JC', 'KP', 'LM', 'NZ', 'OV', 'PB', 'PV', 'SG', 'SM', 'SP']
+# README below this point still in progress!
 
 ## Source Model
 Model for providing information about observation sources
