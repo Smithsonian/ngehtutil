@@ -39,7 +39,7 @@ class Station:
             'Site Acquisition':'site_acquisition',
             'Radiometer Testing':'radiometer_testing',
             'uv_M87':'uv_M87',
-            'uv_SgrA*':'uv_SgrA*',
+            'uv_SgrA*':'uv_SgrA',
             'Antenna Count':'antenna_count',
             'RMS surf err':'rms_surf_error',
             'pwv':'pwv',
