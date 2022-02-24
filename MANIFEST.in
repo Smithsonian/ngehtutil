@@ -1,6 +1,6 @@
-include ngehtutil/arraymodel/config/*
-include ngehtutil/costmodel/cost_constants.xlsx
-include ngehtutil/sourcemodel/config/*
-include ngehtutil/sourcemodel/models/*
-include ngehtutil/targetmodel/config/*
+include ngehtutil/station/config/*
+include ngehtutil/cost/cost_constants.xlsx
+include ngehtutil/source/config/*
+include ngehtutil/source/models/*
+include ngehtutil/target/config/*
 

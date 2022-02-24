@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ngeht-util',
-    version='0.2.0',    
+    version='0.3.0',    
     description='Utilities for performing calculations with ngEHT',
     url='https://github.com/shuds13/pyexample',
     author='Aaron Oppenheimer',
