@@ -16,7 +16,7 @@ The Statiopn module contains models and functions to manage the definition of VL
 
 ### Usage
 
-    from ngehtutil.station import *
+    >>> from ngehtutil.station import *
 
 This library provides the following functions:
 
@@ -77,13 +77,13 @@ Station objects have the following methods:
 * (x, y, z) = xyz() - return station location in XYZ
 * s = SEFD(freq, elev, filled=0.7, month=5) - calculates SEFD given parameters
 
-## Source Model
+## Source Module
 
 The Source module contains functions and models to help manage observation sources.
 
 ### Usage
 
-from ngehtutil.source import *
+    >>> from ngehtutil.source import *
 
 The Source model provides the following functions:
 
@@ -112,14 +112,59 @@ The Source model provides the following functions:
     >>> get_source_data_file('M87',230)
     '/Users/aoppenheimer/src/ngeht-util/ngehtutil/source/models/M87_230GHz_Chael.fits'
 
+
+## Target Module
+
+The Target module contains some tools for managing useful sky targets
+
+### Usage
+
+    >>> from ngehtutil.target import *
+
+The Target model provides the following functions:
+
+*get_target_list()* - returns a list of known targets
+
+    >>> get_target_list()
+    ['M87', 'Sgr A*', 'M31', 'Cen A', 'OJ 287', '3C 279']
+
+*get_target_info(target)* - returns a dict of location information about a target.
+
+    >>> get_target_info('M87')
+    {'RA_hr': 12.0, 'RA_min': 30.0, 'RA_sec': 49.42338, 'Dec_deg': 12.0, 'Dec_arcmin': 23.0, 'Dec_arcsec': 28.0439, 'RA': 12.513728716666666, 'Dec': 12.391123305555555}
+
 # README below this point still in progress!
 
 
-## Target Model
+## Cost Module
 
-## Cost Model
+The Cost module calculates the cost of an array given a list of stations, a set of configuration information for new sites to construct, and a set of configuration information about observation plans.
 
-### To use
+### Usage
+
+    >>> from ngehtutil.cost import *
+
+The Cost module provides the CostConfig object, which is used to describe the use of an array. CostConfig objects have the following attributes:
+
+* dish_size: size of new dishes in meters (default: 6)
+* autonomy_of_operations: description of level of automation at new sites ('Manual')
+* data_management: plan for compute resources ('Own Cluster')
+* recording_bandwidth: Recording bandwidth in GHz (8)
+* recording_frequencies: Number of simaltaneous recording frequencies (2)
+* start_building: Year of start construction (2025)
+* fully_operational: Year entire array is built (2030)
+* inflation_rate: Annual inflation rate (0.02)
+* active_lifetime: Lifetime of entire array once it is complete (10)
+* observations_per_year: Number of observations each year (1)
+* days_per_observation: Number of observing days in an observation (3)
+* hours_per_observation: Total number of hours in an observation (30)
+
+Any parameter can be set as keyword arguments when instantiating a Station.
+
+    >>> x = CostConfig(recording_bandwidth=12, inflation_rate=0.03)
+    >>> x.recording_bandwidth
+    12
+
 
 This repo is a module that exposes two functions that are used to calculate cost information for an array configuration:
 

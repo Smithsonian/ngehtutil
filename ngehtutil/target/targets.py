@@ -30,10 +30,7 @@ _init_targets()
 def get_target_list():
     return list(THE_TARGETS.index)
 
-
-def get_default_target():
-    return list(get_target_list())[0]
-
-
 def get_target_info(target):
+    if not target in THE_TARGETS.index:
+        raise ValueError(f'No information on target {target}')
     return dict(THE_TARGETS.loc[target])
