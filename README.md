@@ -77,10 +77,43 @@ Station objects have the following methods:
 * (x, y, z) = xyz() - return station location in XYZ
 * s = SEFD(freq, elev, filled=0.7, month=5) - calculates SEFD given parameters
 
+## Source Model
+
+The Source module contains functions and models to help manage observation sources.
+
+### Usage
+
+from ngehtutil.source import *
+
+The Source model provides the following functions:
+
+*get_source_list()* - Returns a list of sources known by the util library.
+
+    >>> get_source_list()
+    ['M87', 'SgrA*']
+
+*get_source_description(s)* - Returns a string describing the image, for instance including the source of the data.
+
+    >>> get_source_desctiption('M87')
+    'Chael M87'
+
+*get_source_freq_list(s)* - Returns a list of frequencies for which native data is available for a source.
+
+    >>> get_source_freq_list('M87')
+    [86, 230, 345]
+
+*get_source_image(s, frequency)* - Returns a Python Image Library Image object containing a png image of the source at the given frequency
+
+    >>> get_source_image('M87',230)
+    <PIL.PngImagePlugin.PngImageFile image mode=RGBA size=413x319 at 0x7FCC68552070>
+
+*get_source_data_file(s, freqency)* - Returns a path to a file containing the data describing the source at a given frequency.
+
+    >>> get_source_data_file('M87',230)
+    '/Users/aoppenheimer/src/ngeht-util/ngehtutil/source/models/M87_230GHz_Chael.fits'
+
 # README below this point still in progress!
 
-## Source Model
-Model for providing information about observation sources
 
 ## Target Model
 
