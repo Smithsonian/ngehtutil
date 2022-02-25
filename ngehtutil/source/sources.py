@@ -24,10 +24,6 @@ def get_source_list():
     return list(THE_SOURCES.index)
 
 
-def get_default_source():
-    return list(get_source_list())[0]
-
-
 def get_source_info(source):
     return dict(THE_SOURCES.loc[source])
 
