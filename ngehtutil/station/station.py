@@ -15,6 +15,7 @@ class Station:
     bit_depth = 2
     pwv = [0] * 12
     rms_surf_err = 0
+    eht = False
 
     def __init__(self, name, **kwargs):
 
@@ -52,11 +53,23 @@ class Station:
             if k in attribute_map:
                 mapkey = attribute_map[k]
                 setattr(self, mapkey, v)
+            elif k in attribute_map.values():
+                setattr(self, k, v)
             else:
                 raise ValueError(f'bad attribute for station: {k}')
 
         # stn['lat'] = np.arcsin( stn['z']/np.sqrt(stn['x']**2+stn['y']**2+stn['z']**2) ) * 180./np.pi
         # stn['lon'] = np.arctan2( stn['y'], stn['x'] ) * 180.0/np.pi
+
+
+    def to_dict(self):
+        ret = {}
+        for k in self.__dir__():
+            if not k[0:2] == '__':
+                v = getattr(self, k)
+                if isinstance(v,(str, float, int, list, dict, bool, np.integer)):
+                    ret[k] = v
+        return ret
 
 
     def data_rate(self):

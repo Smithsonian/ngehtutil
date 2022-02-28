@@ -9,6 +9,7 @@ import operator
 import logging
 import os
 import pandas as pd
+from ngehtutil.station import Station
 
 # constants from file - we don't want to have to read these every time
 CONSTANTS_TABLES = None
@@ -106,8 +107,15 @@ def calculate_costs(cost_config, sites, const_filename=None):
     array_stats['ARRAY STATS'] = ''
 
     # make sure sites is a dataframe - if not, it's a list of dicts of site info, so convert it
+    if not sites:
+        raise ValueError('need sites')
     if type(sites) is list:
-        sites = pd.DataFrame({x['name']:x for x in sites})
+        if type(sites[0]) is dict:
+            # is it a list of dicts?
+            sites = pd.DataFrame({x['name']:x for x in sites})
+        elif type(sites[0]) is Station:
+            # is it a list of Station objects?
+            sites = pd.DataFrame({x.name:x.to_dict() for x in sites})
 
 
     total_sites_count = len(sites.columns)
@@ -441,8 +449,9 @@ def calculate_costs(cost_config, sites, const_filename=None):
     # add a row just to hold the name of the category.
     avg_new_site_costs = pd.Series(dtype='float')
     avg_new_site_costs['NEW SITE AVG COSTS'] = ''
-    avg_new_site_costs = avg_new_site_costs.append([avg_new_site_build_costs,
-                                                    avg_new_site_data_costs])
+    avg_new_site_costs = pd.concat([avg_new_site_costs, \
+                                    avg_new_site_build_costs, \
+                                    avg_new_site_data_costs])
 
     capex_costs = [
         'New Site Avg Design NRE',
