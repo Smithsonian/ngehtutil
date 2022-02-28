@@ -70,7 +70,7 @@ def get_source_data_file(source, frequency):
     if not source in THE_SOURCES.index:
         raise ValueError(f'No source {source}')
 
-    if not frequency in THE_SOURCES.loc[source]:
+    if not frequency in get_source_freq_list(source):
         raise ValueError(f'No frequency {frequency} for source {source}')
 
     file_name = THE_SOURCES.loc[source][f'{int(frequency)}_DATA']
