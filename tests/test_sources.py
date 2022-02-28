@@ -1,7 +1,7 @@
 # test arrays
 from multiprocessing.sharedctypes import Value
 from ngehtutil.source import get_source_description, get_source_list, \
-    get_source_info, get_source_image
+    get_source_info, get_source_image, get_source_data_file
 import unittest
 import PIL
 
@@ -44,3 +44,15 @@ class TestClass(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             info = get_source_image('M87',999)
+
+
+    def test_source_data_file(self):
+        f = get_source_data_file(get_default_source(),230)
+        self.assertEqual(type(f), str)
+
+        with self.assertRaises(ValueError):
+            f = get_source_data_file('aaron',230)
+
+        with self.assertRaises(ValueError):
+            f = get_source_data_file('M87',999)
+
