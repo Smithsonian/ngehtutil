@@ -23,14 +23,18 @@ def _init_targets():
             return [ra, dec]
 
         targs[['RA','Dec']] = targs.apply(convert_ra_dec, axis=1, result_type='expand')
-        THE_TARGETS = targs
+        THE_TARGETS = targs[['RA','Dec']]
 
 _init_targets()
 
 def get_target_list():
     return list(THE_TARGETS.index)
 
-def get_target_info(target):
+def get_target_info(target=None):
+    if target is None:
+        return THE_TARGETS.to_dict(orient='index')
+
     if not target in THE_TARGETS.index:
         raise ValueError(f'No information on target {target}')
-    return dict(THE_TARGETS.loc[target])
+
+    return THE_TARGETS.loc[target].to_dict()
