@@ -167,13 +167,12 @@ def calculate_operating_mode(cost_config, sites):
     return array_stats
 
 
-    ###
-    ### CAPITAL COSTS FOR ANTENNAS
-    ###
+###
+### CAPITAL COSTS FOR ANTENNAS
+###
 def calculate_capital_costs(cost_config, sites):
     global CONSTANTS_TABLES
     const = CONSTANTS_TABLES
-    array_stats = {}
 
     #
     #  calculate costs based on the array configuration - NRE, construction costs, operating costs
@@ -181,13 +180,6 @@ def calculate_capital_costs(cost_config, sites):
     site_costs = pd.DataFrame(index=['Site acquisition / leasing', 'Infrastructure',
                                      'Antenna construction', 'Antenna commissioning',
                                      'Antenna operations'])
-    operation_costs = pd.DataFrame(index=['total_non_local_labor_observation',
-                                          'total_labor_needed_to_travel_observation',
-                                          'total_local_labor_observation',
-                                        #   'total_nonlocal_labor_monitoring',
-                                        #   'total_local_labor_monitoring',
-                                          'total_nonlocal_labor_maintenance',
-                                          'total_local_labor_mainenance'])
     total_site_costs = pd.Series(dtype='float') # holds total cost for all sites
     new_site_costs = pd.Series(dtype='float') # holds total cost for just new sites
     # add a row just to hold the name of the category.
@@ -294,8 +286,8 @@ def calculate_capital_costs(cost_config, sites):
             site_costs.at['Antenna commissioning', site.name] = commissioning_cost
 
     total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
+    
     new_sites = [x.name for x in sites if not x.eht]
-    print("hi")
     new_site_costs = \
         pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
     return total_site_costs.to_dict(), new_site_costs.to_dict()
@@ -303,18 +295,31 @@ def calculate_capital_costs(cost_config, sites):
 ###
 ### Antenna Operations Costs
 ###
+def calculate_operations_costs(cost_config, sites):
+    global CONSTANTS_TABLES
+    const = CONSTANTS_TABLES
+    array_stats = {}
 
-def foo():
-    if False:
+    site_costs = pd.DataFrame(index=['Antenna operations'])
+
+    operation_costs = pd.DataFrame(index=['total_non_local_labor_observation',
+                                        'total_labor_needed_to_travel_observation',
+                                        'total_local_labor_observation',
+                                    #   'total_nonlocal_labor_monitoring',
+                                    #   'total_local_labor_monitoring',
+                                        'total_nonlocal_labor_maintenance',
+                                        'total_local_labor_mainenance'])
+
+    for site in sites:
         #
         # Antenna Operations costs
         # todo - don't we have operations costs for existing sites too?
         #
-        operation_costs.loc[:, site_name] = 0
+        operation_costs.loc[:, site.name] = 0
         autonomy_scenario = cost_config.autonomy_of_operations
-        site_region = site['region']
+        site_region = site.region
 
-        if not site['eht']:
+        if not site.eht:
             # Antenna operations - total non-local labor during observations
             # eht_and_dedicated_obs_days_per_year = campaigns_per_year * campaign_duration
 
@@ -330,7 +335,7 @@ def foo():
             total_non_local_labor_observation = collecting_days_per_year * \
                 (labor_needed_to_travel + remote_labor) * na_remote_labor_cost_day
             operation_costs.at['total_non_local_labor_observation',
-                                site_name] = total_non_local_labor_observation
+                                site.name] = total_non_local_labor_observation
 
             # Antenna operations - total travel during observations
 
@@ -339,7 +344,7 @@ def foo():
             per_diem = const['travel_cost_values_table']\
                 .loc[:,site_region].loc['per_diem']
 
-            operation_costs.at['total_labor_needed_to_travel_observation', site_name] = \
+            operation_costs.at['total_labor_needed_to_travel_observation', site.name] = \
                 ((labor_needed_to_travel * \
                     (observations_per_year)) * travel_cost) + \
                 (labor_needed_to_travel * days_per_observation * per_diem)
@@ -353,7 +358,7 @@ def foo():
             total_local_labor_observation = \
                 collecting_days_per_year * local_labor * technician_cost_day
             operation_costs\
-                .at['total_local_labor_observation',site_name] = total_local_labor_observation
+                .at['total_local_labor_observation',site.name] = total_local_labor_observation
 
             # # Antenna operations - total non-local labor during monitoring
             # nonlocal_labor_onsite_monitoring = const['autonomy_mode_values_table']\
@@ -363,7 +368,7 @@ def foo():
             # total_nonlocal_labor_monitoring = \
             #     monitoring_days_per_year * nonlocal_labor_onsite_monitoring * remote_labor_cost_day
             # operation_costs\
-            #     .at['total_nonlocal_labor_monitoring',site_name] = total_nonlocal_labor_monitoring
+            #     .at['total_nonlocal_labor_monitoring',site.name] = total_nonlocal_labor_monitoring
 
             # # Antenna operations - total local labor during monitoring
             # local_labor_onsite_monitoring = const['autonomy_mode_values_table']\
@@ -372,7 +377,7 @@ def foo():
             # total_local_labor_monitoring = \
             #     monitoring_days_per_year * local_labor_onsite_monitoring * technician_cost_day
             # operation_costs\
-            #     .at['total_local_labor_monitoring',site_name] = total_local_labor_monitoring
+            #     .at['total_local_labor_monitoring',site.name] = total_local_labor_monitoring
 
             # Antenna operations - total non-local labor needed for maintenance
             nonlocal_labor_remote_maintenance = const['autonomy_mode_values_table']\
@@ -383,7 +388,7 @@ def foo():
             total_nonlocal_labor_maintenance = \
                 nonlocal_labor_remote_maintenance * scientist_cost_year
             operation_costs\
-                .at['total_nonlocal_labor_maintenance',site_name] = \
+                .at['total_nonlocal_labor_maintenance',site.name] = \
                     total_nonlocal_labor_maintenance
 
         # Antenna operations - total local labor needed for maintenance
@@ -394,20 +399,24 @@ def foo():
 
         total_local_labor_maintenance = local_labor_remote_maintenance * technician_cost_year
         operation_costs\
-            .at['total_local_labor_maintenance',site_name] = total_local_labor_maintenance
+            .at['total_local_labor_maintenance',site.name] = total_local_labor_maintenance
 
         # add 'em up and plug into the site costs
         site_costs.at['Antenna operations',
-                        site_name] = operation_costs.loc[:, site_name].sum()
+                        site.name] = operation_costs.loc[:, site.name].sum()
 
     total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
+    
+    new_sites = [x.name for x in sites if not x.eht]
     new_site_costs = \
-        pd.concat([new_site_costs, site_costs.loc[:,sites.loc['eht']==0].sum(axis=1)])
+        pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
+    return total_site_costs.to_dict(), new_site_costs.to_dict()
 
-    ##
-    ## Data Management Costs
-    ##
 
+##
+## Data Management Costs
+##
+def foo():
 
     #
     # calculate data management costs
