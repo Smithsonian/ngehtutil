@@ -14,7 +14,7 @@ from ngehtutil.station import Station
 # constants from file - we don't want to have to read these every time
 CONSTANTS_TABLES = None
 
-def read_constants(infile_name):
+def read_constants(infile_name=None):
     """ Read in all of the constants used for calculations as pandas dataframes """
     global CONSTANTS_TABLES # pylint: disable=global-statement
     if CONSTANTS_TABLES is None:
@@ -41,23 +41,24 @@ def read_constants(infile_name):
 
     return CONSTANTS_TABLES
 
+read_constants()
 
-def update_constants_from_config(const, cost_config):
-    """
-    We give the user the chance to override specific values from the constants table.
+# def update_constants_from_config(const, cost_config):
+#     """
+#     We give the user the chance to override specific values from the constants table.
 
-    Format in the cost_config dict is:
+#     Format in the cost_config dict is:
 
-    name_of_table_in_constants_table.row.column: value
-    """
-    update_consts = {k:v.copy() for k,v in const.items()}
+#     name_of_table_in_constants_table.row.column: value
+#     """
+#     update_consts = {k:v.copy() for k,v in const.items()}
 
-    for key,val in cost_config.items():
-        if '.' in key:
-            parts = key.split('.')
-            update_consts[parts[0]].at[parts[1], parts[2]] = val
+#     for key,val in cost_config.items():
+#         if '.' in key:
+#             parts = key.split('.')
+#             update_consts[parts[0]].at[parts[1], parts[2]] = val
 
-    return update_consts
+#     return update_consts
 
 
 
@@ -125,6 +126,18 @@ def calculate_costs(cost_config, sites, const_filename=None):
     array_stats['EHT Sites Count'] = total_sites_count - new_sites_count
     array_stats['Total Sites Count'] = total_sites_count
 
+    return array_stats
+
+
+
+    ##
+    ## OPERATION MODE CALCULATIONS
+    ##
+
+def calculate_operating_mode(cost_config, sites):
+    global CONSTANTS_TABLES
+    const = CONSTANTS_TABLES
+    array_stats = {}
 
     # calculate stuff about operation mode
     observations_per_year = cost_config.observations_per_year
@@ -148,8 +161,19 @@ def calculate_costs(cost_config, sites, const_filename=None):
 
     # calculate the total amount of data for this configuration
     total_data_collected_per_year = round(
-        total_sites_count * collecting_hours_per_year, 0)
+        len(sites) * collecting_hours_per_year, 0)
     array_stats["Data Per Year (PB)"] = total_data_collected_per_year
+
+    return array_stats
+
+
+    ###
+    ### CAPITAL COSTS FOR ANTENNAS
+    ###
+def calculate_capital_costs(cost_config, sites):
+    global CONSTANTS_TABLES
+    const = CONSTANTS_TABLES
+    array_stats = {}
 
     #
     #  calculate costs based on the array configuration - NRE, construction costs, operating costs
@@ -172,7 +196,7 @@ def calculate_costs(cost_config, sites, const_filename=None):
 
     # calculate the total NRE costs for designing new stations
     total_new_site_nre = 0
-    if new_sites_count:
+    if sites:
         new_dish_size = cost_config.dish_size
         dish_cost_multiplier = new_dish_size / 4.0 # not sure where this is from
         autonomy_multiplier = const['autonomy_mode_values_table'].loc['Manual'][
@@ -187,27 +211,27 @@ def calculate_costs(cost_config, sites, const_filename=None):
     new_site_costs['Design NRE'] = total_new_site_nre
 
     # now some numbers for each site, depending on its location, whether it alreasy exists, etc.
-    for site_name, site in sites.items():
+    for site in sites:
 
-        site_costs.loc[:, site_name] = 0  # everything starts out FREE!!
+        site_costs.loc[:, site.name] = 0  # everything starts out FREE!!
 
         # For new sites we have to worry about costs to acquire, build, commission
 
-        if not site['eht']:
+        if not site.eht:
             # Aquisition Costs
             site_aquisition_baseline = const['site_development_values_table']\
                 .at['site_acquisition_and_leasing', 'Value']
-            site_aquisition_scaling_factor = site['site_acquisition']
+            site_aquisition_scaling_factor = site.site_acquisition
             site_costs.at['Site acquisition / leasing',
-                            site_name] = site_aquisition_baseline * site_aquisition_scaling_factor
+                            site.name] = site_aquisition_baseline * site_aquisition_scaling_factor
 
             # Infrastructure Development
             infrastructure_baseline = const['site_development_values_table'].loc[
                 'infrastructure_development', 'Value']
             infrascruture_scaling_factor = const['site_development_values_table'].loc[
-                site['existing_infrastructure'], 'Value']
+                site.existing_infrastructure, 'Value']
             site_costs.at['Infrastructure',
-                            site_name] = infrastructure_baseline * infrascruture_scaling_factor
+                            site.name] = infrastructure_baseline * infrascruture_scaling_factor
 
         # Antenna Construction
         #
@@ -220,29 +244,29 @@ def calculate_costs(cost_config, sites, const_filename=None):
         single_antenna_cost = antenna_constant + \
                     (antenna_factor * pow(dish_size, antenna_exp))
 
-        number_of_antennas = site.get('number_of_antennas', 1)
+        number_of_antennas = site.number_dishes
 
-        if not site['eht']:
-            if site['existing_infrastructure'] == 'Complete':
+        if not site.eht:
+            if site.existing_infrastructure == 'Complete':
                 # we don't have to build anything if it already exists
-                site_costs.at['Antenna construction', site_name] = 0
+                site_costs.at['Antenna construction', site.name] = 0
             else:
                 construction_cost = single_antenna_cost * number_of_antennas
 
                 construction_cost = construction_cost * \
                     const['site_development_values_table']\
-                        .at[site['polar_nonpolar'], 'Value']  # polar multiplier
+                        .at[site.polar_nonpolar, 'Value']  # polar multiplier
 
-                site_costs.at['Antenna construction', site_name] = construction_cost
+                site_costs.at['Antenna construction', site.name] = construction_cost
         else:
             # for existing sites, don't need to build dish
-            site_costs.at['Antenna construction', site_name] = 0
+            site_costs.at['Antenna construction', site.name] = 0
 
 
         # Backend - receiver, maser, correlator
         receiver_cost_factor = const['site_development_values_table']\
             .at['receiver_cost_factor', 'Value']
-        if frequencies > 2:
+        if cost_config.recording_frequencies > 2:
             triband_cost_multiplier = const['site_development_values_table']\
                 .at['triband_cost_multiplier', 'Value']
             receiver_cost_factor = receiver_cost_factor * triband_cost_multiplier
@@ -253,11 +277,11 @@ def calculate_costs(cost_config, sites, const_filename=None):
             (correlator_cost_factor * pow(number_of_antennas, 2)) + \
             maser_cost
 
-        site_costs.at['Backend costs', site_name] = backend_cost
+        site_costs.at['Backend costs', site.name] = backend_cost
 
         # Antenna Commissioning
-        if not site['eht']:
-            if site['existing_infrastructure'] == 'Complete':
+        if not site.eht:
+            if site.existing_infrastructure == 'Complete':
                 # cost to commission existing site
                 commissioning_cost = const['site_development_values_table']\
                     .at['commissioning_existing', 'Value']
@@ -266,9 +290,22 @@ def calculate_costs(cost_config, sites, const_filename=None):
                 commissioning_cost = const['site_development_values_table']\
                     .at['commissioning_new', 'Value'] * \
                     const['site_development_values_table']\
-                        .loc[site['polar_nonpolar'], 'Value']
-            site_costs.at['Antenna commissioning', site_name] = commissioning_cost
+                        .loc[site.polar_nonpolar, 'Value']
+            site_costs.at['Antenna commissioning', site.name] = commissioning_cost
 
+    total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
+    new_sites = [x.name for x in sites if not x.eht]
+    print("hi")
+    new_site_costs = \
+        pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
+    return total_site_costs.to_dict(), new_site_costs.to_dict()
+
+###
+### Antenna Operations Costs
+###
+
+def foo():
+    if False:
         #
         # Antenna Operations costs
         # todo - don't we have operations costs for existing sites too?
@@ -366,6 +403,12 @@ def calculate_costs(cost_config, sites, const_filename=None):
     total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
     new_site_costs = \
         pd.concat([new_site_costs, site_costs.loc[:,sites.loc['eht']==0].sum(axis=1)])
+
+    ##
+    ## Data Management Costs
+    ##
+
+
     #
     # calculate data management costs
     #
@@ -431,6 +474,11 @@ def calculate_costs(cost_config, sites, const_filename=None):
     # station opex - cost to ship the data
     data_management_costs['Data Shipping'] = const['data_management_option_values_table']\
         .at[data_management_strategy,'shipping_perPB'] * total_data_collected_per_year
+
+    ##
+    ## Average Costs
+    ##
+
 
     #
     # work out the average costs for new sites

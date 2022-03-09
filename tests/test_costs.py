@@ -3,6 +3,7 @@ import unittest
 from pandas import Series
 from ngehtutil.cost import calculate_costs
 from ngehtutil.cost import CostConfig
+from ngehtutil.cost.cost_model import calculate_capital_costs
 from ngehtutil.station import get_station_list, get_station_info
 
 class TestClass(unittest.TestCase):
@@ -29,11 +30,18 @@ class TestClass(unittest.TestCase):
 
         ]
         costs = calculate_costs(config, array)
-        self.assertEqual(type(costs), Series)
+        self.assertEqual(type(costs), dict)
 
     def test_costmodel_stationobjects(self):
         config = CostConfig()
         array = [get_station_info(get_station_list()[0])]
         costs = calculate_costs(config, array)
-        self.assertEqual(type(costs), Series)
+        self.assertEqual(type(costs), dict)
 
+    def test_capital_costs(self):
+        config = CostConfig()
+        array = get_station_info(get_station_list())
+        total_site_costs, new_site_costs = calculate_capital_costs(config, array)
+        all_site = sum([x for x in total_site_costs.values() if not type(x) is str])
+        all_new = sum([x for x in new_site_costs.values() if not type(x) is str])
+        self.assertTrue(all_site >= all_new)
