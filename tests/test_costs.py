@@ -6,7 +6,7 @@ from ngehtutil.cost import CostConfig
 from ngehtutil.cost.cost_model import *
 from ngehtutil.station import get_station_list, get_station_info
 
-class TestClass(unittest.TestCase):
+class CostTestClass(unittest.TestCase):
 
     def test_costmodel_stationdicts(self):
         config = CostConfig()
@@ -49,7 +49,13 @@ class TestClass(unittest.TestCase):
     def test_operations_costs(self):
         config = CostConfig()
         array = get_station_info(get_station_list())
-        total_site_costs, new_site_costs = calculate_operations_costs(config, array)
+        total_site_costs, new_site_costs = calculate_operations_costs(config, array, 1, 1)
         all_site = sum([x for x in total_site_costs.values() if not type(x) is str])
         all_new = sum([x for x in new_site_costs.values() if not type(x) is str])
         self.assertTrue(all_site >= all_new)
+
+    def test_data_costs(self):
+        config = CostConfig()
+        array = get_station_info(get_station_list())
+        data_costs = calculate_data_costs(config, len(array), 1, 10)
+        self.assertEqual(type(data_costs), dict)

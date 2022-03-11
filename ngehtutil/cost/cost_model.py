@@ -293,9 +293,9 @@ def calculate_capital_costs(cost_config, sites):
     return total_site_costs.to_dict(), new_site_costs.to_dict()
 
 ###
-### Antenna Operations Costs
+### Antenna Operations Costs Per Observation Day, which is primarily about staffing
 ###
-def calculate_operations_costs(cost_config, sites):
+def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_year):
     global CONSTANTS_TABLES
     const = CONSTANTS_TABLES
     array_stats = {}
@@ -332,7 +332,7 @@ def calculate_operations_costs(cost_config, sites):
             na_remote_labor_cost_day = const['labor_cost_values_table'].at['science_salary',
                                                                         'N. America / Europe'] / 365
 
-            total_non_local_labor_observation = collecting_days_per_year * \
+            total_non_local_labor_observation = obs_days_per_year * \
                 (labor_needed_to_travel + remote_labor) * na_remote_labor_cost_day
             operation_costs.at['total_non_local_labor_observation',
                                 site.name] = total_non_local_labor_observation
@@ -345,9 +345,8 @@ def calculate_operations_costs(cost_config, sites):
                 .loc[:,site_region].loc['per_diem']
 
             operation_costs.at['total_labor_needed_to_travel_observation', site.name] = \
-                ((labor_needed_to_travel * \
-                    (observations_per_year)) * travel_cost) + \
-                (labor_needed_to_travel * days_per_observation * per_diem)
+                (labor_needed_to_travel * \
+                    (obs_per_year * travel_cost) + (obs_days_per_year * per_diem))
 
             # Antenna operations - total local labor during observations
             local_labor = const['autonomy_mode_values_table']\
@@ -356,7 +355,7 @@ def calculate_operations_costs(cost_config, sites):
                 .loc[:,site_region].loc['technician_salary'] / 365
 
             total_local_labor_observation = \
-                collecting_days_per_year * local_labor * technician_cost_day
+                obs_days_per_year * local_labor * technician_cost_day
             operation_costs\
                 .at['total_local_labor_observation',site.name] = total_local_labor_observation
 
@@ -405,18 +404,20 @@ def calculate_operations_costs(cost_config, sites):
         site_costs.at['Antenna operations',
                         site.name] = operation_costs.loc[:, site.name].sum()
 
-    total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
+    total_site_costs = site_costs.sum(axis=1)
     
     new_sites = [x.name for x in sites if not x.eht]
     new_site_costs = \
-        pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
+        site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)
     return total_site_costs.to_dict(), new_site_costs.to_dict()
 
 
 ##
 ## Data Management Costs
 ##
-def foo():
+def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting_days_per_year):
+    global CONSTANTS_TABLES
+    const = CONSTANTS_TABLES
 
     #
     # calculate data management costs
@@ -447,47 +448,49 @@ def foo():
         const['data_management_option_values_table']\
             .at[data_management_strategy,'holding_storage_perPB'] * \
                 months_to_hold * \
-                    total_data_collected_per_year
+                    total_pb_per_year
 
     # fast data storage cost, while we're processing
     data_management_costs['Fast Data Storage Costs'] = \
         const['data_management_option_values_table']\
             .loc[data_management_strategy,'fast_storage_perPB'] * \
                 const['data_management_values_table']\
-                    .at['Months for processing', 'Value'] * total_data_collected_per_year
+                    .at['Months for processing', 'Value'] * total_pb_per_year
 
     # cost to transfer data from one class of storage to another
     data_management_costs['Transfer Costs'] = const['data_management_option_values_table']\
-        .at[data_management_strategy,'data_xfer_perPB'] * total_data_collected_per_year
+        .at[data_management_strategy,'data_xfer_perPB'] * total_pb_per_year
 
     # computation costs
     data_management_costs['Computation Costs'] = const['data_management_option_values_table']\
         .at[data_management_strategy, 'compute_fixed'] + \
             const['data_management_option_values_table']\
-                .at[data_management_strategy,'compute_perPB'] * total_data_collected_per_year
+                .at[data_management_strategy,'compute_perPB'] * total_pb_per_year
 
     # station capex - recorders and media
 
     # cost for recorders - one per station
-    data_management_costs['Site Recorders'] = total_sites_count * \
+    data_management_costs['Site Recorders'] = sites_count * \
         const['data_management_values_table'].at['Recorder Cost', 'Value']
 
     # media cost
     max_nights_media = const['data_management_values_table']\
         .at['Max nights of media on-hand', 'Value']
     nights_of_media = min(max_nights_media, collecting_days_per_year)
-    pb_of_media_per_site = nights_of_media * pb_per_day
-    data_management_costs['Site Media'] = total_sites_count * pb_of_media_per_site * \
+    pb_of_media_per_site = nights_of_media * (total_pb_per_year / collecting_days_per_year)
+    data_management_costs['Site Media'] = sites_count * pb_of_media_per_site * \
         const['data_management_values_table'].at['Media Cost / PB', 'Value']
 
     # station opex - cost to ship the data
     data_management_costs['Data Shipping'] = const['data_management_option_values_table']\
-        .at[data_management_strategy,'shipping_perPB'] * total_data_collected_per_year
+        .at[data_management_strategy,'shipping_perPB'] * total_pb_per_year
 
-    ##
-    ## Average Costs
-    ##
+    return data_management_costs.to_dict()
 
+##
+## Average Costs
+##
+def foo():
 
     #
     # work out the average costs for new sites
