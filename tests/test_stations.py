@@ -30,4 +30,8 @@ class TestClass(unittest.TestCase):
         self.assertEqual(type(info),Station)
         self.assertEqual(info.name, sl[0])
 
-
+    def test_station_SEFD(self):
+        sl = get_station_list()
+        s = get_station_info(sl[0])
+        sefd = s.SEFD(230,0)
+        self.assertTrue(sefd >= 0)

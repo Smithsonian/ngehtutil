@@ -1,20 +1,59 @@
 #
 # object to describe a station
 #
+from sqlite3 import register_converter
 import numpy as np
 
+class Dish:
+    """
+    Class to describe a single dish antenna
+    """
+    size = 6 # size in meters
+    surface_error = 0 # rms surface error in microns
+    pointing_model = None # TBD description of pointing limits
+
+    def __init__(self, size=6, surface_error=0, pointing_model=None):
+        self.size = size
+        self.surface_error = surface_error
+        self.pointing_model = pointing_model
+
+    def __str__(self):
+        return f'{self.size}m dish'
+
+    def __repr__(self):
+        return f'{self.size}m dish'
+
+
 class Station:
+    id = None
+    locatlity = None
+    country = None
+    latitude = None
+    longitude = None
+    elevation = None
+    site_or_region = None
+
+    owner = None
+    register_converter = None
+    polar_nonpolar = None
+    existing_infrastructure = None
+    site_acquisition = None
+    radiometer_testing = None
+    uv_M87 = None
+    uv_SgrA = None
+
     name = None
-    dish_size = 6
-    number_dishes = 1
+    dishes = None
     autonomy_of_operations = 'Manual'
+
     recording_bandwidth = 8
     recording_frequencies = 2
     polarizations = 2
     sidebands = 2
     bit_depth = 2
+
     pwv = [0] * 12
-    rms_surf_err = 0
+
     eht = False
 
     def __init__(self, name, **kwargs):
@@ -47,16 +86,27 @@ class Station:
             'Dish Dia.':'dish_size',
         }
 
+        # first see if there are dishes described
+        count = kwargs.get('Antenna Count',1)
+        size = kwargs.get('Dish Dia.',6)
+        if np.isnan(size):
+            size = 6
+        self.dishes = [Dish(size=size)] * count
+
         for k,v in kwargs.items():
             # convert column headings in spreadsheet to our attribute names
             # todo - we skip some that might be helpful
-            if k in attribute_map:
+
+            if k in ['Antenna Count', 'Dish Dia.']:
+                pass
+            elif k in attribute_map:
                 mapkey = attribute_map[k]
                 setattr(self, mapkey, v)
             elif k in attribute_map.values():
                 setattr(self, k, v)
             else:
                 raise ValueError(f'bad attribute for station: {k}')
+
 
         # stn['lat'] = np.arcsin( stn['z']/np.sqrt(stn['x']**2+stn['y']**2+stn['z']**2) ) * 180./np.pi
         # stn['lon'] = np.arctan2( stn['y'], stn['x'] ) * 180.0/np.pi
@@ -133,9 +183,9 @@ class Station:
 
         """
 
-        N = self.antenna_count
-        D = self.dish_size
-        RMS = self.rms_surf_err
+        N = len(self.dishes)
+        D = self.dishes[0].size
+        RMS = self.dishes[0].surface_error
         PWV = self.pwv[month-1]
 
         if freq == 86:
@@ -175,3 +225,9 @@ class Station:
         # Calculate the SEFD
         the_SEFD = Tsys_star/DPFU
         return the_SEFD
+
+    def __str__(self):
+        return f'station {self.name}'
+
+    def __repr__(self):
+        return f'station {self.name}'

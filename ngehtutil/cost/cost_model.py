@@ -236,7 +236,7 @@ def calculate_capital_costs(cost_config, sites):
         single_antenna_cost = antenna_constant + \
                     (antenna_factor * pow(dish_size, antenna_exp))
 
-        number_of_antennas = site.number_dishes
+        number_of_antennas = len(site.dishes)
 
         if not site.eht:
             if site.existing_infrastructure == 'Complete':
