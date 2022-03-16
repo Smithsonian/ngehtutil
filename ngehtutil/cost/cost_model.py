@@ -108,25 +108,90 @@ def calculate_costs(cost_config, sites, const_filename=None):
     array_stats['ARRAY STATS'] = ''
 
     # make sure sites is a dataframe - if not, it's a list of dicts of site info, so convert it
-    if not sites:
-        raise ValueError('need sites')
-    if type(sites) is list:
-        if type(sites[0]) is dict:
-            # is it a list of dicts?
-            sites = pd.DataFrame({x['name']:x for x in sites})
-        elif type(sites[0]) is Station:
-            # is it a list of Station objects?
-            sites = pd.DataFrame({x.name:x.to_dict() for x in sites})
+    # if not sites:
+    #     raise ValueError('need sites')
+    # if type(sites) is list:
+    #     if type(sites[0]) is dict:
+    #         # is it a list of dicts?
+    #         sites = pd.DataFrame({x['name']:x for x in sites})
+    #     elif type(sites[0]) is Station:
+    #         # is it a list of Station objects?
+    #         sites = pd.DataFrame({x.name:x.to_dict() for x in sites})
 
 
-    total_sites_count = len(sites.columns)
-    new_sites = sites.loc[:,sites.loc['eht']==0].to_dict()
+    total_sites_count = len(sites)
+    # new_sites = sites.loc[:,sites.loc['eht']==0].to_dict()
+    new_sites = [x for x in sites if not x.eht]
     new_sites_count = len(new_sites)
     array_stats['New Sites Count'] = new_sites_count
     array_stats['EHT Sites Count'] = total_sites_count - new_sites_count
     array_stats['Total Sites Count'] = total_sites_count
 
-    return array_stats
+    array_stats = pd.Series(array_stats)
+    array_stats = pd.concat([array_stats,calculate_operating_mode(cost_config, sites)])
+
+    total_site_costs, new_site_costs = calculate_capital_costs(cost_config, sites)
+
+    t, n = calculate_operations_costs(cost_config, sites, \
+        cost_config.observations_per_year, cost_config.days_per_observation)
+    total_site_costs = pd.concat([total_site_costs, t])
+    new_site_costs = pd.concat([new_site_costs, n])
+
+    data_management_costs = calculate_data_costs(cost_config, total_sites_count, \
+        array_stats["Data Per Year (PB)"], \
+            cost_config.observations_per_year*cost_config.days_per_observation )
+
+    #
+    # work out the average costs for new sites
+    #
+    avg_new_site_build_costs = new_site_costs[1:].copy()
+    new_names = {i:f'New Site Avg {i}' for i in avg_new_site_build_costs.index}
+    avg_new_site_build_costs.rename(new_names, inplace=True)
+    avg_new_site_build_costs[:] = (avg_new_site_build_costs[:] / new_sites_count) \
+        if new_sites_count else 0
+    avg_new_site_data_costs = data_management_costs[['Site Recorders','Site Media']]
+    new_names = {i:f'New Site Avg {i}' for i in avg_new_site_data_costs.index}
+    avg_new_site_data_costs.rename(new_names, inplace=True)
+    avg_new_site_data_costs[:] = (avg_new_site_data_costs[:]/ total_sites_count) \
+        if new_sites_count else 0
+
+    # add a row just to hold the name of the category.
+    avg_new_site_costs = pd.Series(dtype='float')
+    avg_new_site_costs['NEW SITE AVG COSTS'] = ''
+    avg_new_site_costs = pd.concat([avg_new_site_costs, \
+                                    avg_new_site_build_costs, \
+                                    avg_new_site_data_costs])
+
+    capex_costs = [
+        'New Site Avg Design NRE',
+        'New Site Avg Site acquisition / leasing',
+        'New Site Avg Infrastructure',
+        'New Site Avg Antenna construction',
+        'New Site Avg Antenna commissioning',
+        'New Site Avg Site Recorders',
+        'New Site Avg Site Media',
+    ]
+    avg_new_site_costs['New Site Total CAPEX'] = \
+        sum([avg_new_site_costs[i] for i in capex_costs])
+
+    total_costs = pd.Series(dtype='float')
+    total_costs['TOTAL COSTS'] = ''
+    total_costs['TOTAL CAPEX'] = total_site_costs[1:].drop('Antenna operations').sum() +\
+                                 data_management_costs[['Cluster Build Cost',
+                                                        'Site Recorders',
+                                                        'Site Media']].sum()
+    total_costs['ANNUAL OPEX'] = total_site_costs['Antenna operations'] +\
+                                 data_management_costs[['Personnel',
+                                                        'Holding Data Storage Costs',
+                                                        'Fast Data Storage Costs',
+                                                        'Transfer Costs',
+                                                        'Computation Costs',
+                                                        'Data Shipping']].sum()
+
+    everything = pd.concat([pd.Series(array_stats), total_site_costs, data_management_costs, \
+                      avg_new_site_costs, total_costs])
+    return everything.to_dict()
+
 
 
 
@@ -164,7 +229,7 @@ def calculate_operating_mode(cost_config, sites):
         len(sites) * collecting_hours_per_year, 0)
     array_stats["Data Per Year (PB)"] = total_data_collected_per_year
 
-    return array_stats
+    return pd.Series(array_stats)
 
 
 ###
@@ -178,8 +243,7 @@ def calculate_capital_costs(cost_config, sites):
     #  calculate costs based on the array configuration - NRE, construction costs, operating costs
     #
     site_costs = pd.DataFrame(index=['Site acquisition / leasing', 'Infrastructure',
-                                     'Antenna construction', 'Antenna commissioning',
-                                     'Antenna operations'])
+                                     'Antenna construction', 'Antenna commissioning'])
     total_site_costs = pd.Series(dtype='float') # holds total cost for all sites
     new_site_costs = pd.Series(dtype='float') # holds total cost for just new sites
     # add a row just to hold the name of the category.
@@ -188,7 +252,7 @@ def calculate_capital_costs(cost_config, sites):
 
     # calculate the total NRE costs for designing new stations
     total_new_site_nre = 0
-    if sites:
+    if len(sites):
         new_dish_size = cost_config.dish_size
         dish_cost_multiplier = new_dish_size / 4.0 # not sure where this is from
         autonomy_multiplier = const['autonomy_mode_values_table'].loc['Manual'][
@@ -290,7 +354,7 @@ def calculate_capital_costs(cost_config, sites):
     new_sites = [x.name for x in sites if not x.eht]
     new_site_costs = \
         pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
-    return total_site_costs.to_dict(), new_site_costs.to_dict()
+    return total_site_costs, new_site_costs
 
 ###
 ### Antenna Operations Costs Per Observation Day, which is primarily about staffing
@@ -409,7 +473,7 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
     new_sites = [x.name for x in sites if not x.eht]
     new_site_costs = \
         site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)
-    return total_site_costs.to_dict(), new_site_costs.to_dict()
+    return total_site_costs, new_site_costs
 
 
 ##
@@ -485,7 +549,7 @@ def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting
     data_management_costs['Data Shipping'] = const['data_management_option_values_table']\
         .at[data_management_strategy,'shipping_perPB'] * total_pb_per_year
 
-    return data_management_costs.to_dict()
+    return data_management_costs
 
 ##
 ## Average Costs
