@@ -33,5 +33,5 @@ class TestClass(unittest.TestCase):
     def test_station_SEFD(self):
         sl = get_station_list()
         s = get_station_info(sl[0])
-        sefd = s.SEFD(230,0)
+        sefd = s.SEFD(230,90)
         self.assertTrue(sefd >= 0)
