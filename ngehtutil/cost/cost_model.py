@@ -43,25 +43,6 @@ def read_constants(infile_name=None):
 
 read_constants()
 
-# def update_constants_from_config(const, cost_config):
-#     """
-#     We give the user the chance to override specific values from the constants table.
-
-#     Format in the cost_config dict is:
-
-#     name_of_table_in_constants_table.row.column: value
-#     """
-#     update_consts = {k:v.copy() for k,v in const.items()}
-
-#     for key,val in cost_config.items():
-#         if '.' in key:
-#             parts = key.split('.')
-#             update_consts[parts[0]].at[parts[1], parts[2]] = val
-
-#     return update_consts
-
-
-
 def calculate_costs(cost_config, sites, const_filename=None):
     """
     Perform cost calculations for an array of ngEGT sites
@@ -70,24 +51,7 @@ def calculate_costs(cost_config, sites, const_filename=None):
     ------
     cost_config: CostConfig object
 
-    sites: dict with keys for each site and value of one dict for each site containing
-                these keys:
-        eht:                    Boolean - true if part of EHT, false otherwise
-        site_acquisition:       Boolean - true if need to acquire site
-        existing_infrastructure:One of:
-                                    "Full, existing site"
-                                    "Full, developed access"
-                                    "Partial, near developed access"
-                                    "Remote"
-        region:                 One of:
-                                    "N. America / Europe"
-                                    "Africa"
-                                    "S. America"
-                                    "Antarctica"
-                                    "Asia"
-                                    "Australia / NZ"
-        polar_nonpolar:            One of: "Polar" "Non-polar"
-
+    sites: list of Station objects
 
     OUTPUTS
     -------
@@ -106,18 +70,6 @@ def calculate_costs(cost_config, sites, const_filename=None):
     array_stats = {}
     # add a row just to hold the name of the category.
     array_stats['ARRAY STATS'] = ''
-
-    # make sure sites is a dataframe - if not, it's a list of dicts of site info, so convert it
-    # if not sites:
-    #     raise ValueError('need sites')
-    # if type(sites) is list:
-    #     if type(sites[0]) is dict:
-    #         # is it a list of dicts?
-    #         sites = pd.DataFrame({x['name']:x for x in sites})
-    #     elif type(sites[0]) is Station:
-    #         # is it a list of Station objects?
-    #         sites = pd.DataFrame({x.name:x.to_dict() for x in sites})
-
 
     total_sites_count = len(sites)
     # new_sites = sites.loc[:,sites.loc['eht']==0].to_dict()
@@ -550,58 +502,3 @@ def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting
         .at[data_management_strategy,'shipping_perPB'] * total_pb_per_year
 
     return data_management_costs
-
-# ##
-# ## Average Costs
-# ##
-# def foo():
-
-#     #
-#     # work out the average costs for new sites
-#     #
-#     avg_new_site_build_costs = new_site_costs[1:].copy()
-#     new_names = {i:f'New Site Avg {i}' for i in avg_new_site_build_costs.index}
-#     avg_new_site_build_costs.rename(new_names, inplace=True)
-#     avg_new_site_build_costs[:] = (avg_new_site_build_costs[:] / new_sites_count) \
-#         if new_sites_count else 0
-#     avg_new_site_data_costs = data_management_costs[['Site Recorders','Site Media']]
-#     new_names = {i:f'New Site Avg {i}' for i in avg_new_site_data_costs.index}
-#     avg_new_site_data_costs.rename(new_names, inplace=True)
-#     avg_new_site_data_costs[:] = (avg_new_site_data_costs[:]/ total_sites_count) \
-#         if new_sites_count else 0
-
-#     # add a row just to hold the name of the category.
-#     avg_new_site_costs = pd.Series(dtype='float')
-#     avg_new_site_costs['NEW SITE AVG COSTS'] = ''
-#     avg_new_site_costs = pd.concat([avg_new_site_costs, \
-#                                     avg_new_site_build_costs, \
-#                                     avg_new_site_data_costs])
-
-#     capex_costs = [
-#         'New Site Avg Design NRE',
-#         'New Site Avg Site acquisition / leasing',
-#         'New Site Avg Infrastructure',
-#         'New Site Avg Antenna construction',
-#         'New Site Avg Antenna commissioning',
-#         'New Site Avg Site Recorders',
-#         'New Site Avg Site Media',
-#     ]
-#     avg_new_site_costs['New Site Total CAPEX'] = \
-#         sum([avg_new_site_costs[i] for i in capex_costs])
-
-#     total_costs = pd.Series(dtype='float')
-#     total_costs['TOTAL COSTS'] = ''
-#     total_costs['TOTAL CAPEX'] = total_site_costs[1:].drop('Antenna operations').sum() +\
-#                                  data_management_costs[['Cluster Build Cost',
-#                                                         'Site Recorders',
-#                                                         'Site Media']].sum()
-#     total_costs['ANNUAL OPEX'] = total_site_costs['Antenna operations'] +\
-#                                  data_management_costs[['Personnel',
-#                                                         'Holding Data Storage Costs',
-#                                                         'Fast Data Storage Costs',
-#                                                         'Transfer Costs',
-#                                                         'Computation Costs',
-#                                                         'Data Shipping']].sum()
-
-#     return pd.concat([pd.Series(array_stats), total_site_costs, data_management_costs, \
-#                       avg_new_site_costs, total_costs])
