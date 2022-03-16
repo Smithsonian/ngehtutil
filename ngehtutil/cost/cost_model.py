@@ -138,7 +138,7 @@ def calculate_costs(cost_config, sites, const_filename=None):
     new_site_costs = pd.concat([new_site_costs, n])
 
     data_management_costs = calculate_data_costs(cost_config, total_sites_count, \
-        array_stats["Data Per Year (PB)"], \
+        array_stats["Data Per Year - Full Array (PB)"], \
             cost_config.observations_per_year*cost_config.days_per_observation )
 
     #
@@ -226,8 +226,8 @@ def calculate_operating_mode(cost_config, sites):
 
     # calculate the total amount of data for this configuration
     total_data_collected_per_year = round(
-        len(sites) * collecting_hours_per_year, 0)
-    array_stats["Data Per Year (PB)"] = total_data_collected_per_year
+        len(sites) * collecting_hours_per_year * pb_per_hour, 0)
+    array_stats["Data Per Year - Full Array (PB)"] = total_data_collected_per_year
 
     return pd.Series(array_stats)
 
@@ -551,57 +551,57 @@ def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting
 
     return data_management_costs
 
-##
-## Average Costs
-##
-def foo():
+# ##
+# ## Average Costs
+# ##
+# def foo():
 
-    #
-    # work out the average costs for new sites
-    #
-    avg_new_site_build_costs = new_site_costs[1:].copy()
-    new_names = {i:f'New Site Avg {i}' for i in avg_new_site_build_costs.index}
-    avg_new_site_build_costs.rename(new_names, inplace=True)
-    avg_new_site_build_costs[:] = (avg_new_site_build_costs[:] / new_sites_count) \
-        if new_sites_count else 0
-    avg_new_site_data_costs = data_management_costs[['Site Recorders','Site Media']]
-    new_names = {i:f'New Site Avg {i}' for i in avg_new_site_data_costs.index}
-    avg_new_site_data_costs.rename(new_names, inplace=True)
-    avg_new_site_data_costs[:] = (avg_new_site_data_costs[:]/ total_sites_count) \
-        if new_sites_count else 0
+#     #
+#     # work out the average costs for new sites
+#     #
+#     avg_new_site_build_costs = new_site_costs[1:].copy()
+#     new_names = {i:f'New Site Avg {i}' for i in avg_new_site_build_costs.index}
+#     avg_new_site_build_costs.rename(new_names, inplace=True)
+#     avg_new_site_build_costs[:] = (avg_new_site_build_costs[:] / new_sites_count) \
+#         if new_sites_count else 0
+#     avg_new_site_data_costs = data_management_costs[['Site Recorders','Site Media']]
+#     new_names = {i:f'New Site Avg {i}' for i in avg_new_site_data_costs.index}
+#     avg_new_site_data_costs.rename(new_names, inplace=True)
+#     avg_new_site_data_costs[:] = (avg_new_site_data_costs[:]/ total_sites_count) \
+#         if new_sites_count else 0
 
-    # add a row just to hold the name of the category.
-    avg_new_site_costs = pd.Series(dtype='float')
-    avg_new_site_costs['NEW SITE AVG COSTS'] = ''
-    avg_new_site_costs = pd.concat([avg_new_site_costs, \
-                                    avg_new_site_build_costs, \
-                                    avg_new_site_data_costs])
+#     # add a row just to hold the name of the category.
+#     avg_new_site_costs = pd.Series(dtype='float')
+#     avg_new_site_costs['NEW SITE AVG COSTS'] = ''
+#     avg_new_site_costs = pd.concat([avg_new_site_costs, \
+#                                     avg_new_site_build_costs, \
+#                                     avg_new_site_data_costs])
 
-    capex_costs = [
-        'New Site Avg Design NRE',
-        'New Site Avg Site acquisition / leasing',
-        'New Site Avg Infrastructure',
-        'New Site Avg Antenna construction',
-        'New Site Avg Antenna commissioning',
-        'New Site Avg Site Recorders',
-        'New Site Avg Site Media',
-    ]
-    avg_new_site_costs['New Site Total CAPEX'] = \
-        sum([avg_new_site_costs[i] for i in capex_costs])
+#     capex_costs = [
+#         'New Site Avg Design NRE',
+#         'New Site Avg Site acquisition / leasing',
+#         'New Site Avg Infrastructure',
+#         'New Site Avg Antenna construction',
+#         'New Site Avg Antenna commissioning',
+#         'New Site Avg Site Recorders',
+#         'New Site Avg Site Media',
+#     ]
+#     avg_new_site_costs['New Site Total CAPEX'] = \
+#         sum([avg_new_site_costs[i] for i in capex_costs])
 
-    total_costs = pd.Series(dtype='float')
-    total_costs['TOTAL COSTS'] = ''
-    total_costs['TOTAL CAPEX'] = total_site_costs[1:].drop('Antenna operations').sum() +\
-                                 data_management_costs[['Cluster Build Cost',
-                                                        'Site Recorders',
-                                                        'Site Media']].sum()
-    total_costs['ANNUAL OPEX'] = total_site_costs['Antenna operations'] +\
-                                 data_management_costs[['Personnel',
-                                                        'Holding Data Storage Costs',
-                                                        'Fast Data Storage Costs',
-                                                        'Transfer Costs',
-                                                        'Computation Costs',
-                                                        'Data Shipping']].sum()
+#     total_costs = pd.Series(dtype='float')
+#     total_costs['TOTAL COSTS'] = ''
+#     total_costs['TOTAL CAPEX'] = total_site_costs[1:].drop('Antenna operations').sum() +\
+#                                  data_management_costs[['Cluster Build Cost',
+#                                                         'Site Recorders',
+#                                                         'Site Media']].sum()
+#     total_costs['ANNUAL OPEX'] = total_site_costs['Antenna operations'] +\
+#                                  data_management_costs[['Personnel',
+#                                                         'Holding Data Storage Costs',
+#                                                         'Fast Data Storage Costs',
+#                                                         'Transfer Costs',
+#                                                         'Computation Costs',
+#                                                         'Data Shipping']].sum()
 
-    return pd.concat([pd.Series(array_stats), total_site_costs, data_management_costs, \
-                      avg_new_site_costs, total_costs])
+#     return pd.concat([pd.Series(array_stats), total_site_costs, data_management_costs, \
+#                       avg_new_site_costs, total_costs])
