@@ -346,7 +346,7 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
 
             # todo in the spreadsheet this is hardwired to NA labor, not by site region.
             na_remote_labor_cost_day = const['labor_cost_values_table'].at['science_salary',
-                                                                        'N. America / Europe'] / 365
+                                                                        'N. America'] / 365
 
             total_non_local_labor_observation = obs_days_per_year * \
                 (labor_needed_to_travel + remote_labor) * na_remote_labor_cost_day

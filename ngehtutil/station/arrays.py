@@ -10,7 +10,7 @@ import numpy as np
 THE_ARRAYS = None
 THE_STATIONS = {}
 
-SITE_FILE_NAME = 'Telescope_Site_Matrix_20220126.xlsx'
+SITE_FILE_NAME = 'Telescope_Site_Matrix_20220218.xlsx'
 
 def site_file_path():
     path=str(Path(__file__).parent) + '/config'

@@ -47,7 +47,7 @@ class Station:
     autonomy_of_operations = 'Manual'
 
     recording_bandwidth = 8
-    recording_frequencies = 2
+    recording_frequencies = []
     polarizations = 2
     sidebands = 2
     bit_depth = 2
@@ -93,11 +93,16 @@ class Station:
             size = 6
         self.dishes = [Dish(size=size)] * count
 
+        for k in ['86 GHz', '230 GHz', '345 GHz']:
+            x = kwargs.get(k,0)
+            if x==1:
+                self.recording_frequencies.append(k)
+
         for k,v in kwargs.items():
             # convert column headings in spreadsheet to our attribute names
             # todo - we skip some that might be helpful
 
-            if k in ['Antenna Count', 'Dish Dia.']:
+            if k in ['Antenna Count', 'Dish Dia.', '86 GHz', '230 GHz', '345 GHz']:
                 pass
             elif k in attribute_map:
                 mapkey = attribute_map[k]
