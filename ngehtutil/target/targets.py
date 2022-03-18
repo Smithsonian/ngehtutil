@@ -8,6 +8,22 @@ import numpy as np
 
 THE_TARGETS = None
 
+class Target:
+    name = None
+
+    @staticmethod
+    def get_target_list():
+        return list(THE_TARGETS.keys())
+
+    @staticmethod
+    def get(name):
+        return THE_TARGETS[name]
+
+    def __init__(self, name, **kwargs):
+        self.name = name
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+
  ## Helper functions
 
 def _init_targets():
@@ -23,18 +39,6 @@ def _init_targets():
             return [ra, dec]
 
         targs[['RA','Dec']] = targs.apply(convert_ra_dec, axis=1, result_type='expand')
-        THE_TARGETS = targs[['RA','Dec']]
+        THE_TARGETS = {x:Target(name=x, **(targs.loc[x].to_dict())) for x in targs.index}
 
 _init_targets()
-
-def get_target_list():
-    return list(THE_TARGETS.index)
-
-def get_target_info(target=None):
-    if target is None:
-        return THE_TARGETS.to_dict(orient='index')
-
-    if not target in THE_TARGETS.index:
-        raise ValueError(f'No information on target {target}')
-
-    return THE_TARGETS.loc[target].to_dict()

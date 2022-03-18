@@ -1,20 +1,20 @@
 # test targets
-from ngehtutil.target import get_target_list, get_target_info
+from ngehtutil.target import Target
 import unittest
 
 
 class TestClass(unittest.TestCase):
     def test_target_list(self):
-        a = get_target_list()
+        a = Target.get_target_list()
         self.assertEqual(type(a),list)
         self.assertTrue(len(a)>0)
 
 
     def test_target_info(self):
-        sl = get_target_list()
-        info = get_target_info(sl[0])
-        self.assertEqual(type(info),dict)
+        a = Target.get_target_list()
+        info = Target.get(a[0])
+        self.assertEqual(type(info),Target)
 
-        with self.assertRaises(ValueError):
-            info = get_target_info('aaron')
+        with self.assertRaises(KeyError):
+            info = Target.get('aaron')
 
