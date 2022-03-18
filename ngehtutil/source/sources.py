@@ -22,6 +22,10 @@ class Source:
     def get(name):
         return THE_SOURCES[name]
 
+    @classmethod
+    def default_source(cls):
+        return cls.get(cls.get_source_list()[0])
+
     def __init__(self, name, **kwargs):
         self.name = name
         for k,v in kwargs.items():
@@ -64,6 +68,13 @@ class Source:
             return data
         else:
             return None
+
+    def __str__(self):
+        return f'Source {self.name}'
+
+    def __repr__(self):
+        return f'Source {self.name}'
+
 
 
  ## Helper functions

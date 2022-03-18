@@ -28,3 +28,20 @@ class Schedule():
         return Schedule(obs_per_year = self.obs_per_year + value.obs_per_year,
                         obs_days = self.obs_days + value.obs_days,
                         obs_hours = self.obs_hours + value.obs_hours)
+
+
+class Campaign:
+    schedule = None
+    target = None
+    source = None
+
+    def __init__(self, target, source, schedule):
+        self.schedule = schedule
+        self.target = target
+        self.source = source
+
+    def __str__(self):
+        return f'{self.source} @ self.target} for {self.schedule}'
+
+    def __repr__(self):
+        return f'{self.source} @ self.target} for {self.schedule}'

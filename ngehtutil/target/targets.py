@@ -19,10 +19,21 @@ class Target:
     def get(name):
         return THE_TARGETS[name]
 
+    @classmethod
+    def default_target(cls):
+        return cls.get(cls.get_target_list()[0])
+
     def __init__(self, name, **kwargs):
         self.name = name
         for k,v in kwargs.items():
             setattr(self, k, v)
+
+    def __str__(self):
+        return f'Target {self.name}'
+
+    def __repr__(self):
+        return f'Target {self.name}'
+
 
  ## Helper functions
 
