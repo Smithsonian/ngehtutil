@@ -25,6 +25,11 @@ class Program:
             raise ValueError("Program not configured with Campaigns")
 
         config = CostConfig()
+        config.observations_per_year = self.campaigns[0].schedule.obs_per_year
+        config.days_per_observation = self.campaigns[0].schedule.obs_days
+        config.hours_per_observation = self.campaigns[0].schedule.obs_hours
+        config.recording_frequencies = 1
+        
         costs = calculate_costs(config, self.array.stations())
         return costs
 
