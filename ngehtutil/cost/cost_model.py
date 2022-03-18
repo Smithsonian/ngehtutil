@@ -43,7 +43,7 @@ def read_constants(infile_name=None):
 
 read_constants()
 
-def calculate_costs(cost_config, sites, const_filename=None):
+def calculate_costs(cost_config, array, const_filename=None):
     """
     Perform cost calculations for an array of ngEGT sites
 
@@ -70,6 +70,8 @@ def calculate_costs(cost_config, sites, const_filename=None):
     array_stats = {}
     # add a row just to hold the name of the category.
     array_stats['ARRAY STATS'] = ''
+
+    sites = array.stations()
 
     total_sites_count = len(sites)
     # new_sites = sites.loc[:,sites.loc['eht']==0].to_dict()
@@ -229,9 +231,8 @@ def calculate_capital_costs(cost_config, sites):
             # Aquisition Costs
             site_aquisition_baseline = const['site_development_values_table']\
                 .at['site_acquisition_and_leasing', 'Value']
-            site_aquisition_scaling_factor = site.site_acquisition
             site_costs.at['Site acquisition / leasing',
-                            site.name] = site_aquisition_baseline * site_aquisition_scaling_factor
+                            site.name] = site_aquisition_baseline if site.site_acquisition else 0
 
             # Infrastructure Development
             infrastructure_baseline = const['site_development_values_table'].loc[

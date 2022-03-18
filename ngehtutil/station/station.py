@@ -1,8 +1,12 @@
 #
 # object to describe a station
 #
-from sqlite3 import register_converter
+from pathlib import Path
 import numpy as np
+import pandas as pd
+
+THE_STATIONS = None
+
 
 class Dish:
     """
@@ -55,6 +59,14 @@ class Station:
     pwv = [0] * 12
 
     eht = False
+
+    @staticmethod
+    def get_station_list():
+        return sorted(list(THE_STATIONS.keys()))
+
+    @staticmethod
+    def get(name):
+        return THE_STATIONS[name]
 
     def __init__(self, name, **kwargs):
 
@@ -236,3 +248,28 @@ class Station:
 
     def __repr__(self):
         return f'station {self.name}'
+
+
+SITE_FILE_NAME = 'Telescope_Site_Matrix_20220218.xlsx'
+
+def _site_file_path():
+    path=str(Path(__file__).parent) + '/config'
+    return f'{path}/{SITE_FILE_NAME}'
+
+def _init_stations():
+    """ do the initial setup on stations """
+    global THE_STATIONS
+    if THE_STATIONS is None:
+
+        THE_STATIONS = {}
+        sites_data = pd.read_excel(_site_file_path(), index_col=0, \
+            sheet_name='Basic Site Data')
+        pwv_data = pd.read_excel(_site_file_path(), index_col=0, \
+            sheet_name='PWV')
+        for s in sites_data.index:
+            d = sites_data.loc[s]
+            pwv = list(pwv_data.loc[s])
+            stn = Station(name=s, pwv=pwv, **dict(d))
+            THE_STATIONS[s] = stn
+
+_init_stations()
