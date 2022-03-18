@@ -41,7 +41,7 @@ class Campaign:
         self.source = source
 
     def __str__(self):
-        return f'{self.source} @ self.target} for {self.schedule}'
+        return f'{self.source} @ {self.target} for {self.schedule}'
 
     def __repr__(self):
-        return f'{self.source} @ self.target} for {self.schedule}'
+        return f'{self.source} @ {self.target} for {self.schedule}'
