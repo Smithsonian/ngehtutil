@@ -65,13 +65,12 @@ class Station:
         return sorted(list(THE_STATIONS.keys()))
 
     @staticmethod
-    def get(name):
+    def from_name(name):
         return THE_STATIONS[name]
 
     @staticmethod
     def get_all():
         return THE_STATIONS
-
 
     def __init__(self, name, **kwargs):
 
@@ -114,6 +113,8 @@ class Station:
             x = kwargs.get(k,0)
             if x==1:
                 self.recording_frequencies.append(k)
+        if self.recording_frequencies == []:
+            self.recording_frequencies = [230]
 
         for k,v in kwargs.items():
             # convert column headings in spreadsheet to our attribute names

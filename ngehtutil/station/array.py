@@ -27,22 +27,25 @@ class Array:
 
     @staticmethod
     def get_array_list():
-        return THE_ARRAYS
+        """get the list of array names we have in the database"""
+        return list(THE_ARRAYS.keys())
 
     @classmethod
     def get_default_array_name(cls):
-        return list(cls.get_array_list().keys())[0]
+        return cls.get_array_list()[0]
 
     @staticmethod
     def get_station_names(array):
         return THE_ARRAYS[array]
 
-    def __init__(self, name=None) -> None:
-        if name is None:
-            name = Array.get_default_array_name()
+    def __init__(self, name, stations):
+        self.name = name if name else '[none]'
+        self._stations = stations
 
-        self.name = name
-        self._stations = [Station.get(x) for x in THE_ARRAYS[name]]
+    @classmethod
+    def from_name(cls, name):
+        stations = [Station.from_name(x) for x in THE_ARRAYS[name]]
+        return cls(name, stations)
 
     def __str__(self):
         return f'Array {self.name}'

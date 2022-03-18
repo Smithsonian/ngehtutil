@@ -5,8 +5,8 @@ import unittest
 class TestClass(unittest.TestCase):
     def test_array_list(self):
         a = Array.get_array_list()
-        self.assertEqual(type(a),dict)
-        self.assertTrue(len(a.keys())>0)
+        self.assertEqual(type(a),list)
+        self.assertTrue(len(a)>0)
 
     def test_default_array(self):
         d = Array.get_default_array_name()
@@ -34,3 +34,7 @@ class TestClass(unittest.TestCase):
         s = Station(sl[0])
         sefd = s.SEFD(230,90)
         self.assertTrue(sefd >= 0)
+
+    def test_generic_station(self):
+        s = Station('test')
+        self.assertTrue(len(s.recording_frequencies),1)
