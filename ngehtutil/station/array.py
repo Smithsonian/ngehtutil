@@ -30,7 +30,7 @@ class Array:
         return THE_ARRAYS
 
     @classmethod
-    def get_default_array(cls):
+    def get_default_array_name(cls):
         return list(cls.get_array_list().keys())[0]
 
     @staticmethod
@@ -39,7 +39,7 @@ class Array:
 
     def __init__(self, name=None) -> None:
         if name is None:
-            name = Array.get_default_array()
+            name = Array.get_default_array_name()
 
         self.name = name
         self._stations = [Station.get(x) for x in THE_ARRAYS[name]]
