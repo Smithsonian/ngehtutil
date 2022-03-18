@@ -330,6 +330,9 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
         # Antenna Operations costs
         # todo - don't we have operations costs for existing sites too?
         #
+        if site.name in operation_costs.columns:
+            raise ValueError("can't have same station more than once in an array")
+
         operation_costs.loc[:, site.name] = 0
         autonomy_scenario = cost_config.autonomy_of_operations
         site_region = site.region
