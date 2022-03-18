@@ -43,7 +43,7 @@ def read_constants(infile_name=None):
 
 read_constants()
 
-def calculate_costs(cost_config, array, const_filename=None):
+def calculate_costs(cost_config, sites, const_filename=None):
     """
     Perform cost calculations for an array of ngEGT sites
 
@@ -70,8 +70,6 @@ def calculate_costs(cost_config, array, const_filename=None):
     array_stats = {}
     # add a row just to hold the name of the category.
     array_stats['ARRAY STATS'] = ''
-
-    sites = array.stations()
 
     total_sites_count = len(sites)
     # new_sites = sites.loc[:,sites.loc['eht']==0].to_dict()

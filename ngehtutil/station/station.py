@@ -68,6 +68,11 @@ class Station:
     def get(name):
         return THE_STATIONS[name]
 
+    @staticmethod
+    def get_all():
+        return THE_STATIONS
+
+
     def __init__(self, name, **kwargs):
 
         self.name = name

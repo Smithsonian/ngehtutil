@@ -35,7 +35,7 @@ class CostTestClass(unittest.TestCase):
     def test_costmodel_stationobjects(self):
         config = CostConfig()
         array = Array()
-        costs = calculate_costs(config, array)
+        costs = calculate_costs(config, array.stations())
         self.assertEqual(type(costs), dict)
 
     def test_capital_costs(self):
