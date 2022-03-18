@@ -9,14 +9,14 @@ class TestClass(unittest.TestCase):
         self.assertTrue(len(a.keys())>0)
 
     def test_default_array(self):
-        d = Array.get_default_array()
+        d = Array.get_default_array_name()
         self.assertEqual(type(d),str)
 
     def test_station_list(self):
         sl1 = Station.get_station_list()
         self.assertTrue(len(sl1)>0) # should get all stations
 
-        d = Array.get_default_array()
+        d = Array.get_default_array_name()
         sl2 = Array.get_station_names(d)
         self.assertTrue(len(sl2)<=len(sl1))
 
