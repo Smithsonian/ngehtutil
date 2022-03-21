@@ -3,18 +3,6 @@ from ngehtutil import *
 import unittest
 
 class TestClass(unittest.TestCase):
-    def test_array_list(self):
-        a = Array.get_list()
-        self.assertEqual(type(a),list)
-        self.assertTrue(len(a)>0)
-
-    def test_default_array(self):
-        d = Array.get_default_array_name()
-        self.assertEqual(type(d),str)
-
-        a = Array.get_default()
-        self.assertEqual(type(a),Array)
-
     def test_station_list(self):
         sl1 = Station.get_list()
         self.assertTrue(len(sl1)>0) # should get all stations
@@ -41,3 +29,10 @@ class TestClass(unittest.TestCase):
     def test_generic_station(self):
         s = Station('test')
         self.assertTrue(len(s.recording_frequencies),1)
+
+    def test_station_frequencies(self):
+        """ make sure the stations have between 1 and 3 frequencies """
+        for _,stn in Station.get_all().items():
+            n = len(stn.recording_frequencies)
+            self.assertTrue(n>=1)
+            self.assertTrue(n<=3)

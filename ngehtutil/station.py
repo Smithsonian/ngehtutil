@@ -115,9 +115,10 @@ class Station:
             size = 6
         self.dishes = [Dish(size=size)] * count
 
+        self.recording_frequencies = []
         for k in ['86 GHz', '230 GHz', '345 GHz']:
-            x = kwargs.get(k,0)
-            if x==1:
+            n = kwargs.get(k,0) 
+            if n == 1:
                 self.recording_frequencies.append(k)
         if self.recording_frequencies == []:
             self.recording_frequencies = [230]
