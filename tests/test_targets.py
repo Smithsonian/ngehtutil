@@ -18,3 +18,7 @@ class TestClass(unittest.TestCase):
         with self.assertRaises(KeyError):
             info = Target.from_name('aaron')
 
+    def test_default_target(self):
+        t = Target.get_default_target()
+        self.assertEqual(type(t),Target)
+

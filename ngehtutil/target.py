@@ -21,7 +21,7 @@ class Target:
 
     @classmethod
     def get_default_target(cls):
-        return cls.get(cls.get_target_list()[0])
+        return cls.from_name(cls.get_list()[0])
 
     def __init__(self, name, **kwargs):
         self.name = name
