@@ -37,6 +37,10 @@ class Array:
         return cls.get_list()[0]
 
     @classmethod
+    def get_default(cls):
+        return cls.from_name(cls.get_default_array_name())
+
+    @classmethod
     def get_station_names(cls, name):
         """ get list of station names associated with an array """
         return _THE_ARRAYS[name]

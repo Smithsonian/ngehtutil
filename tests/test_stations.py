@@ -12,6 +12,9 @@ class TestClass(unittest.TestCase):
         d = Array.get_default_array_name()
         self.assertEqual(type(d),str)
 
+        a = Array.get_default()
+        self.assertEqual(type(a),Array)
+
     def test_station_list(self):
         sl1 = Station.get_list()
         self.assertTrue(len(sl1)>0) # should get all stations
