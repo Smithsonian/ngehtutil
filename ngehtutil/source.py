@@ -7,7 +7,7 @@ import pandas as pd
 from PIL import Image
 import os
 
-THE_SOURCES = None
+_THE_SOURCES = None
 
 
 class Source:
@@ -15,12 +15,12 @@ class Source:
     name = None
     
     @staticmethod
-    def get_source_list():
-        return list(THE_SOURCES.keys())
+    def get_list():
+        return list(_THE_SOURCES.keys())
 
     @staticmethod
-    def get(name):
-        return THE_SOURCES[name]
+    def from_name(name):
+        return _THE_SOURCES[name]
 
     @classmethod
     def get_default_source(cls):
@@ -81,11 +81,11 @@ class Source:
 
 def _init_sources():
     """ do the initial setup on sources """
-    global THE_SOURCES
-    if THE_SOURCES is None:
+    global _THE_SOURCES
+    if _THE_SOURCES is None:
         path=str(Path(__file__).parent) + '/config'
         srcs = pd.read_csv(f'{path}/sources.csv', index_col=0)
-        THE_SOURCES = {x:Source(name=x, **(srcs.loc[x].to_dict())) for x in srcs.index}
+        _THE_SOURCES = {x:Source(name=x, **(srcs.loc[x].to_dict())) for x in srcs.index}
 
 _init_sources()
 

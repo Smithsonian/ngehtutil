@@ -4,7 +4,7 @@ from pandas import Series
 from ngehtutil.cost import calculate_costs
 from ngehtutil.cost import CostConfig
 from ngehtutil.cost.cost_model import *
-from ngehtutil.station import *
+from ngehtutil import *
 
 class CostTestClass(unittest.TestCase):
 
@@ -34,13 +34,13 @@ class CostTestClass(unittest.TestCase):
 
     def test_costmodel_stationobjects(self):
         config = CostConfig()
-        array = Array.from_name(Array.get_array_list()[0])
+        array = Array.from_name(Array.get_list()[0])
         costs = calculate_costs(config, array.stations())
         self.assertEqual(type(costs), dict)
 
     def test_capital_costs(self):
         config = CostConfig()
-        array = Array.from_name(Array.get_array_list()[0])
+        array = Array.from_name(Array.get_list()[0])
         total_site_costs, new_site_costs = calculate_capital_costs(config, array.stations())
         all_site = sum([x for x in total_site_costs.to_dict().values() if not type(x) is str])
         all_new = sum([x for x in new_site_costs.to_dict().values() if not type(x) is str])
@@ -48,7 +48,7 @@ class CostTestClass(unittest.TestCase):
 
     def test_operations_costs(self):
         config = CostConfig()
-        array = Array.from_name(Array.get_array_list()[0])
+        array = Array.from_name(Array.get_list()[0])
         total_site_costs, new_site_costs = calculate_operations_costs(config, array.stations(), 1, 1)
         all_site = sum([x for x in total_site_costs.to_dict().values() if not type(x) is str])
         all_new = sum([x for x in new_site_costs.to_dict().values() if not type(x) is str])
@@ -59,6 +59,6 @@ class CostTestClass(unittest.TestCase):
         TODO make this do something useful
         """
         config = CostConfig()
-        array = Array.from_name(Array.get_array_list()[0])
+        array = Array.from_name(Array.get_list()[0])
         data_costs = calculate_data_costs(config, len(array.stations()), 1, 10)
         self.assertEqual(type(data_costs.to_dict()), dict)

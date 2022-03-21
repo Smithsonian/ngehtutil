@@ -3,4 +3,5 @@ from .source import *
 from .cost import *
 from .campaign import *
 from .station import *
+from .array import *
 from .program import *

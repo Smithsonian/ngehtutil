@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-THE_STATIONS = None
+_THE_STATIONS = None
 
 
 class Dish:
@@ -60,17 +60,23 @@ class Station:
 
     eht = False
 
+    #
+    # Static methods to get the list of possible items and to get the actual objects
+
     @staticmethod
-    def get_station_list():
-        return sorted(list(THE_STATIONS.keys()))
+    def get_list():
+        """ Returns the list of stations we know about """
+        return sorted(list(_THE_STATIONS.keys()))
 
     @staticmethod
     def from_name(name):
-        return THE_STATIONS[name]
+        """ Returns a station object from a name """
+        return _THE_STATIONS[name]
 
     @staticmethod
     def get_all():
-        return THE_STATIONS
+        """ Returns all of the station objects we know about """
+        return _THE_STATIONS
 
     def __init__(self, name, **kwargs):
 
@@ -264,10 +270,10 @@ def _site_file_path():
 
 def _init_stations():
     """ do the initial setup on stations """
-    global THE_STATIONS
-    if THE_STATIONS is None:
+    global _THE_STATIONS
+    if _THE_STATIONS is None:
 
-        THE_STATIONS = {}
+        _THE_STATIONS = {}
         sites_data = pd.read_excel(_site_file_path(), index_col=0, \
             sheet_name='Basic Site Data')
         pwv_data = pd.read_excel(_site_file_path(), index_col=0, \
@@ -276,6 +282,6 @@ def _init_stations():
             d = sites_data.loc[s]
             pwv = list(pwv_data.loc[s])
             stn = Station(name=s, pwv=pwv, **dict(d))
-            THE_STATIONS[s] = stn
+            _THE_STATIONS[s] = stn
 
 _init_stations()

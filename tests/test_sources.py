@@ -10,30 +10,30 @@ def get_default_source():
 
 class TestClass(unittest.TestCase):
     def test_source_list(self):
-        a = Source.get_source_list()
+        a = Source.get_list()
         self.assertEqual(type(a),list)
         self.assertTrue(len(a)>0)
 
 
     def test_source_info(self):
-        sl = Source.get_source_list()
-        info = Source.get(sl[0])
+        sl = Source.get_list()
+        info = Source.from_name(sl[0])
         self.assertEqual(type(info),Source)
 
         with self.assertRaises(KeyError):
-            info = Source.get('aaron')
+            info = Source.from_name('aaron')
 
 
     def test_source_description(self):
-        sl = Source.get_source_list()
-        s = Source.get(sl[0])
+        sl = Source.get_list()
+        s = Source.from_name(sl[0])
         desc = s.description
         self.assertEqual(type(desc),str)
 
 
     def test_source_image(self):
-        sl = Source.get_source_list()
-        s = Source.get(sl[0])
+        sl = Source.get_list()
+        s = Source.from_name(sl[0])
         im = s.picture(230)
         self.assertEqual(type(im), PIL.PngImagePlugin.PngImageFile)
 
@@ -42,8 +42,8 @@ class TestClass(unittest.TestCase):
 
 
     def test_source_data_file(self):
-        sl = Source.get_source_list()
-        s = Source.get(sl[0])
+        sl = Source.get_list()
+        s = Source.from_name(sl[0])
 
         f = s.fits(230)
         self.assertEqual(type(f), str)
