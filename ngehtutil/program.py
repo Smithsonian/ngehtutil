@@ -17,8 +17,9 @@ class Program:
             raise TypeError
         self.campaign = campaign
 
-    def calculate_costs(self):
-        """ use the cost model to figure out what an array and campaigns cost """
+    def calculate_costs(self, **kwargs):
+        """ Use the cost model to figure out what an array and campaigns cost. """
+        """ Pass in CostConfig attributes to override them. """
 
         if type(self.array) is not Array:
             raise ValueError("Program not configured with an Array")
@@ -31,6 +32,9 @@ class Program:
         config.days_per_observation = self.campaign.schedule.obs_days
         config.hours_per_observation = self.campaign.schedule.obs_hours
         config.recording_frequencies = 1
+
+        for k,v in kwargs.items():
+            setattr(config, k, v)
 
         costs = calculate_costs(config, self.array.stations())
         return costs
