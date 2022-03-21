@@ -254,17 +254,13 @@ def calculate_capital_costs(cost_config, sites):
         number_of_antennas = len(site.dishes)
 
         if not site.eht:
-            if site.existing_infrastructure == 'Complete':
-                # we don't have to build anything if it already exists
-                site_costs.at['Antenna construction', site.name] = 0
-            else:
-                construction_cost = single_antenna_cost * number_of_antennas
+            construction_cost = single_antenna_cost * number_of_antennas
 
-                construction_cost = construction_cost * \
-                    const['site_development_values_table']\
-                        .at[site.polar_nonpolar, 'Value']  # polar multiplier
+            construction_cost = construction_cost * \
+                const['site_development_values_table']\
+                    .at[site.polar_nonpolar, 'Value']  # polar multiplier
 
-                site_costs.at['Antenna construction', site.name] = construction_cost
+            site_costs.at['Antenna construction', site.name] = construction_cost
         else:
             # for existing sites, don't need to build dish
             site_costs.at['Antenna construction', site.name] = 0
