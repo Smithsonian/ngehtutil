@@ -12,11 +12,11 @@ class Target:
     name = None
 
     @staticmethod
-    def get_target_list():
+    def get_list():
         return list(THE_TARGETS.keys())
 
     @staticmethod
-    def get(name):
+    def from_name(name):
         return THE_TARGETS[name]
 
     @classmethod

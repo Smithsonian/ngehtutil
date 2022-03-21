@@ -28,11 +28,11 @@ This library provides the following functions:
     >>> al['eht2017']
     ['IRAM-30m', 'SMT', 'SMA', 'LMT', 'ALMA', 'SPT', 'APEX', 'JCMT']
 
-*get_station_list(array=None)* - returns a list of stations. If no array is given, will return all of the stations known to the module. If an array is given, returns the station list for that array.
+*get_list(array=None)* - returns a list of stations. If no array is given, will return all of the stations known to the module. If an array is given, returns the station list for that array.
 
-    >>> arrays.get_station_list()
+    >>> arrays.get_list()
     ['ALMA', 'APEX', 'BAJA', 'BAN', 'BAR', 'BGA', 'BGK', 'BLDR', 'BMAC', 'BOL', 'BRZ', 'CAS', 'CAT', 'CNI', 'Dome A', 'Dome C', 'Dome F', 'ERB', 'FAIR', 'FUJI', 'GAM', 'GARS', 'GLT', 'GLT-S', 'HAN', 'HAY', 'HOP', 'IRAM-30m', 'JCMT', 'JELM', 'KEN', 'KILI', 'KP', 'KVNYS', 'LAS', 'LLA', 'LMT', 'LOS', 'NOB', 'NOEMA', 'NOR', 'NZ', 'ORG', 'OVRO', 'PAR', 'PIKE', 'SAN', 'SGO', 'SMA', 'SMT', 'SOC', 'SPT', 'SPX', 'SUF', 'YAN', 'YBG']
-    >>> arrays.get_station_list('eht2017')
+    >>> arrays.get_list('eht2017')
     ['ALMA', 'APEX', 'IRAM-30m', 'JCMT', 'LMT', 'SMA', 'SMT', 'SPT']
 
 *get_station_info(stations=None)* - returns information about stations. Arguments can be None, in which case a dict is returned with keys for each station known to the module, with values containin station info; a list of station identifiers in which case a dict is returns with keys for each of the stations; or a single station identifier in which case the info is returned directly. Station info is an object with attributes including known and derived information about station location, configuration, data rate, etc.
