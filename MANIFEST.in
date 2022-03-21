@@ -1,6 +1,3 @@
-include ngehtutil/station/config/*
+include ngehtutil/config/*
 include ngehtutil/cost/cost_constants.xlsx
-include ngehtutil/source/config/*
-include ngehtutil/source/models/*
-include ngehtutil/target/config/*
 
