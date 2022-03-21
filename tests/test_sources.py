@@ -50,3 +50,8 @@ class TestClass(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             f = s.fits(999)
+
+
+    def test_default_source(self):
+        s = Source.get_default()
+        self.assertEqual(type(s),Source)

@@ -23,8 +23,8 @@ class Source:
         return _THE_SOURCES[name]
 
     @classmethod
-    def get_default_source(cls):
-        return cls.get(cls.get_source_list()[0])
+    def get_default(cls):
+        return cls.from_name(cls.get_list()[0])
 
     def __init__(self, name, **kwargs):
         self.name = name

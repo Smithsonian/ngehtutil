@@ -19,6 +19,6 @@ class TestClass(unittest.TestCase):
             info = Target.from_name('aaron')
 
     def test_default_target(self):
-        t = Target.get_default_target()
+        t = Target.get_default()
         self.assertEqual(type(t),Target)
 

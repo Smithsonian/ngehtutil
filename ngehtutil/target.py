@@ -20,7 +20,7 @@ class Target:
         return THE_TARGETS[name]
 
     @classmethod
-    def get_default_target(cls):
+    def get_default(cls):
         return cls.from_name(cls.get_list()[0])
 
     def __init__(self, name, **kwargs):
