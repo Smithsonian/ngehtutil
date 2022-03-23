@@ -51,15 +51,22 @@ class Array:
 
     def __init__(self, name, stations):
         self.name = name if name else '[none]'
-        self._stations = stations
+        self.stations(stations)
 
     @classmethod
     def from_name(cls, name):
         stations = [Station.from_name(x) for x in _THE_ARRAYS[name]]
         return cls(name, stations)
 
-    def stations(self):
-        """ return the stations comprising this array """
+    def stations(self, stns = None):
+        """ return the stations comprising this array, or set it """
+        if stns:
+            if not type(stns) is list:
+                raise ValueError("Can only add lists of Stations to an array")
+            if not sum([1 if type(x) is Station else 0 for x in stns]) == len(stns):
+                raise ValueError("Can only add lists of Stations to an array")
+            self._stations = stns
+
         return self._stations
 
     def __str__(self):

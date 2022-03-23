@@ -8,30 +8,6 @@ from ngehtutil import *
 
 class CostTestClass(unittest.TestCase):
 
-    # def test_costmodel_stationdicts(self):
-    #     config = CostConfig()
-    #     array = [
-    #                 {
-    #                     "name" : "teststation1",
-    #                     "eht" : False,
-    #                     "site_acquisition" : True,
-    #                     "existing_infrastructure" : "Partial",
-    #                     "region" : "N. America / Europe",
-    #                     "polar_nonpolar" : "Non-polar",
-    #                 },
-    #                 {
-    #                     "name" : "teststation2",
-    #                     "eht" : False,
-    #                     "site_acquisition" : True,
-    #                     "existing_infrastructure" : "Partial",
-    #                     "region" : "N. America / Europe",
-    #                     "polar_nonpolar" : "Non-polar",
-    #                 }
-
-        # ]
-        # costs = calculate_costs(config, array)
-        # self.assertEqual(type(costs), dict)
-
     def test_costmodel_stationobjects(self):
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
@@ -62,3 +38,31 @@ class CostTestClass(unittest.TestCase):
         array = Array.from_name(Array.get_list()[0])
         data_costs = calculate_data_costs(config, len(array.stations()), 1, 10)
         self.assertEqual(type(data_costs.to_dict()), dict)
+
+    def test_station_copies(self):
+        """
+        Verify that an array made of multiples of the same station works properly
+        """
+
+        config = CostConfig()
+
+        # get the costs of an empty array
+        array0 = Array('test',[])
+        costs0 = calculate_costs(config, array0.stations())
+
+        stn = Station.from_name('OVRO')
+        array1 = Array('test',[stn]) # one OVRO
+        costs1 = calculate_costs(config, array1.stations())
+
+        multi = 10
+        array2 = Array('test',[stn]*multi) # multiple OVROs
+        costs2 = calculate_costs(config, array2.stations())
+
+        base_cost = costs0['TOTAL CAPEX'] + costs1['Design NRE']
+        array1_cost = costs1['TOTAL CAPEX'] - base_cost
+        array2_cost = costs2['TOTAL CAPEX'] - base_cost
+        array2_cost_per_site = array2_cost / multi
+
+        # an array of 1 and an array of 10 should cost close to 10x - not exactly due to rounding
+        # in the amount of data grabbed per site
+        self.assertTrue(math.isclose(array1_cost, array2_cost_per_site, rel_tol=0.01))

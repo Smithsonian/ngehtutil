@@ -10,6 +10,7 @@ import logging
 import os
 import pandas as pd
 from ngehtutil.station import Station
+import math
 
 # constants from file - we don't want to have to read these every time
 CONSTANTS_TABLES = None
@@ -177,8 +178,7 @@ def calculate_operating_mode(cost_config, sites):
     array_stats["Data Per Observation Per Station"] = pb_per_hour * hours_per_observation
 
     # calculate the total amount of data for this configuration
-    total_data_collected_per_year = round(
-        len(sites) * collecting_hours_per_year * pb_per_hour, 0)
+    total_data_collected_per_year = math.ceil(len(sites) * collecting_hours_per_year * pb_per_hour)
     array_stats["Data Per Year - Full Array (PB)"] = total_data_collected_per_year
 
     return pd.Series(array_stats)
@@ -219,9 +219,9 @@ def calculate_capital_costs(cost_config, sites):
     new_site_costs['Design NRE'] = total_new_site_nre
 
     # now some numbers for each site, depending on its location, whether it alreasy exists, etc.
-    for site in sites:
+    for siteindex, site in enumerate(sites):
 
-        site_costs.loc[:, site.name] = 0  # everything starts out FREE!!
+        site_costs.loc[:, siteindex] = 0  # everything starts out FREE!!
 
         # For new sites we have to worry about costs to acquire, build, commission
 
@@ -230,7 +230,7 @@ def calculate_capital_costs(cost_config, sites):
             site_aquisition_baseline = const['site_development_values_table']\
                 .at['site_acquisition_and_leasing', 'Value']
             site_costs.at['Site acquisition / leasing',
-                            site.name] = site_aquisition_baseline if site.site_acquisition else 0
+                            siteindex] = site_aquisition_baseline if site.site_acquisition else 0
 
             # Infrastructure Development
             infrastructure_baseline = const['site_development_values_table'].loc[
@@ -238,7 +238,7 @@ def calculate_capital_costs(cost_config, sites):
             infrascruture_scaling_factor = const['site_development_values_table'].loc[
                 site.existing_infrastructure, 'Value']
             site_costs.at['Infrastructure',
-                            site.name] = infrastructure_baseline * infrascruture_scaling_factor
+                            siteindex] = infrastructure_baseline * infrascruture_scaling_factor
 
         # Antenna Construction
         #
@@ -260,10 +260,10 @@ def calculate_capital_costs(cost_config, sites):
                 const['site_development_values_table']\
                     .at[site.polar_nonpolar, 'Value']  # polar multiplier
 
-            site_costs.at['Antenna construction', site.name] = construction_cost
+            site_costs.at['Antenna construction', siteindex] = construction_cost
         else:
             # for existing sites, don't need to build dish
-            site_costs.at['Antenna construction', site.name] = 0
+            site_costs.at['Antenna construction', siteindex] = 0
 
 
         # Backend - receiver, maser, correlator
@@ -280,7 +280,7 @@ def calculate_capital_costs(cost_config, sites):
             (correlator_cost_factor * pow(number_of_antennas, 2)) + \
             maser_cost
 
-        site_costs.at['Backend costs', site.name] = backend_cost
+        site_costs.at['Backend costs', siteindex] = backend_cost
 
         # Antenna Commissioning
         if not site.eht:
@@ -294,11 +294,11 @@ def calculate_capital_costs(cost_config, sites):
                     .at['commissioning_new', 'Value'] * \
                     const['site_development_values_table']\
                         .loc[site.polar_nonpolar, 'Value']
-            site_costs.at['Antenna commissioning', site.name] = commissioning_cost
+            site_costs.at['Antenna commissioning', siteindex] = commissioning_cost
 
     total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
     
-    new_sites = [x.name for x in sites if not x.eht]
+    new_sites = [i for i,x in enumerate(sites) if not x.eht]
     new_site_costs = \
         pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
     return total_site_costs, new_site_costs
@@ -321,15 +321,12 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
                                         'total_nonlocal_labor_maintenance',
                                         'total_local_labor_mainenance'])
 
-    for site in sites:
+    for siteindex, site in enumerate(sites):
         #
         # Antenna Operations costs
         # todo - don't we have operations costs for existing sites too?
         #
-        if site.name in operation_costs.columns:
-            raise ValueError("can't have same station more than once in an array")
-
-        operation_costs.loc[:, site.name] = 0
+        operation_costs.loc[:, siteindex] = 0
         autonomy_scenario = cost_config.autonomy_of_operations
         site_region = site.region
 
@@ -349,7 +346,7 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
             total_non_local_labor_observation = obs_days_per_year * \
                 (labor_needed_to_travel + remote_labor) * na_remote_labor_cost_day
             operation_costs.at['total_non_local_labor_observation',
-                                site.name] = total_non_local_labor_observation
+                                siteindex] = total_non_local_labor_observation
 
             # Antenna operations - total travel during observations
 
@@ -358,7 +355,7 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
             per_diem = const['travel_cost_values_table']\
                 .loc[:,site_region].loc['per_diem']
 
-            operation_costs.at['total_labor_needed_to_travel_observation', site.name] = \
+            operation_costs.at['total_labor_needed_to_travel_observation', siteindex] = \
                 (labor_needed_to_travel * \
                     (obs_per_year * travel_cost) + (obs_days_per_year * per_diem))
 
@@ -371,7 +368,7 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
             total_local_labor_observation = \
                 obs_days_per_year * local_labor * technician_cost_day
             operation_costs\
-                .at['total_local_labor_observation',site.name] = total_local_labor_observation
+                .at['total_local_labor_observation',siteindex] = total_local_labor_observation
 
             # # Antenna operations - total non-local labor during monitoring
             # nonlocal_labor_onsite_monitoring = const['autonomy_mode_values_table']\
@@ -381,7 +378,7 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
             # total_nonlocal_labor_monitoring = \
             #     monitoring_days_per_year * nonlocal_labor_onsite_monitoring * remote_labor_cost_day
             # operation_costs\
-            #     .at['total_nonlocal_labor_monitoring',site.name] = total_nonlocal_labor_monitoring
+            #     .at['total_nonlocal_labor_monitoring',siteindex] = total_nonlocal_labor_monitoring
 
             # # Antenna operations - total local labor during monitoring
             # local_labor_onsite_monitoring = const['autonomy_mode_values_table']\
@@ -390,7 +387,7 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
             # total_local_labor_monitoring = \
             #     monitoring_days_per_year * local_labor_onsite_monitoring * technician_cost_day
             # operation_costs\
-            #     .at['total_local_labor_monitoring',site.name] = total_local_labor_monitoring
+            #     .at['total_local_labor_monitoring',siteindex] = total_local_labor_monitoring
 
             # Antenna operations - total non-local labor needed for maintenance
             nonlocal_labor_remote_maintenance = const['autonomy_mode_values_table']\
@@ -401,7 +398,7 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
             total_nonlocal_labor_maintenance = \
                 nonlocal_labor_remote_maintenance * scientist_cost_year
             operation_costs\
-                .at['total_nonlocal_labor_maintenance',site.name] = \
+                .at['total_nonlocal_labor_maintenance',siteindex] = \
                     total_nonlocal_labor_maintenance
 
         # Antenna operations - total local labor needed for maintenance
@@ -412,15 +409,15 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
 
         total_local_labor_maintenance = local_labor_remote_maintenance * technician_cost_year
         operation_costs\
-            .at['total_local_labor_maintenance',site.name] = total_local_labor_maintenance
+            .at['total_local_labor_maintenance',siteindex] = total_local_labor_maintenance
 
         # add 'em up and plug into the site costs
         site_costs.at['Antenna operations',
-                        site.name] = operation_costs.loc[:, site.name].sum()
+                        siteindex] = operation_costs.loc[:, siteindex].sum()
 
     total_site_costs = site_costs.sum(axis=1)
     
-    new_sites = [x.name for x in sites if not x.eht]
+    new_sites = [i for i,x in enumerate(sites) if not x.eht]
     new_site_costs = \
         site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)
     return total_site_costs, new_site_costs
@@ -491,7 +488,8 @@ def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting
     max_nights_media = const['data_management_values_table']\
         .at['Max nights of media on-hand', 'Value']
     nights_of_media = min(max_nights_media, collecting_days_per_year)
-    pb_of_media_per_site = nights_of_media * (total_pb_per_year / collecting_days_per_year)
+    total_pb_per_year_per_site = (total_pb_per_year / sites_count) if sites_count else 0
+    pb_of_media_per_site = nights_of_media * (total_pb_per_year_per_site / collecting_days_per_year)
     data_management_costs['Site Media'] = sites_count * pb_of_media_per_site * \
         const['data_management_values_table'].at['Media Cost / PB', 'Value']
 
