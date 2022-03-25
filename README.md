@@ -10,6 +10,11 @@ is installed directly from github. To install the latest plus its dependencies:
 
     pip install git+https://github.com/ngeht/ngeht-util.git
 
+## Architecture
+
+![plot](./doc/ngeht-util.png)
+
+
 ## Station Module
 
 The Statiopn module contains models and functions to manage the definition of VLBI arrays and stations.
