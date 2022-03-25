@@ -50,9 +50,47 @@ For this example, we construct an array, pick a source, and calculate the costs 
     [station OVRO, station BAR, station BAJA, station HAY, station CNI, station SGO, station CAT, station GAM, station GARS, station NZ]
     >>> p = Program(array, c)
     >>> costs = Program(array, c).calculate_costs(dish_size=6) # use 6m as the size of new dishes that need to be constructed for this array
-    >>> costs
-    {'ARRAY STATS': '', 'New Sites Count': 10, 'EHT Sites Count': 0, 'Total Sites Count': 10, 'Data Per Observation Per Station': 1.3824, 'Data Per Year - Full Array (PB)': 14.0, 'SITE COSTS': '', 'Design NRE': 3982500.0, 'Site acquisition / leasing': 0.0, 'Infrastructure': 33000000.0, 'Antenna construction': 24674770.54058225, 'Antenna commissioning': 4500000.0, 'Backend costs': 18000000.0, 'Antenna operations': 7985023.972602739, 'DATA MANAGEMENT': '', 'Cluster Build Cost': 6000000, 'Personnel': 500000, 'Holding Data Storage Costs': 0.0, 'Fast Data Storage Costs': 0.0, 'Transfer Costs': 0.0, 'Computation Costs': 442461.0, 'Site Recorders': 300000, 'Site Media': 1400000.0, 'Data Shipping': 3733.3333333333335, 'NEW SITE AVG COSTS': '', 'New Site Avg Design NRE': 398250.0, 'New Site Avg Site acquisition / leasing': 0.0, 'New Site Avg Infrastructure': 3300000.0, 'New Site Avg Antenna construction': 2467477.054058225, 'New Site Avg Antenna commissioning': 450000.0, 'New Site Avg Backend costs': 1800000.0, 'New Site Avg Antenna operations': 798502.3972602739, 'New Site Avg Site Recorders': 30000.0, 'New Site Avg Site Media': 140000.0, 'New Site Total CAPEX': 6785727.054058225, 'TOTAL COSTS': '', 'TOTAL CAPEX': 91857270.54058225, 'ANNUAL OPEX': 8931218.305936072}
-
+    >>> import pprint
+    >>> pprint.pprint(costs)
+    {'ANNUAL OPEX': 8931218.305936072,
+    'ARRAY STATS': '',
+    'Antenna commissioning': 4500000.0,
+    'Antenna construction': 24674770.54058225,
+    'Antenna operations': 7985023.972602739,
+    'Backend costs': 18000000.0,
+    'Cluster Build Cost': 6000000,
+    'Computation Costs': 442461.0,
+    'DATA MANAGEMENT': '',
+    'Data Per Observation Per Station': 1.3824,
+    'Data Per Year - Full Array (PB)': 14.0,
+    'Data Shipping': 3733.3333333333335,
+    'Design NRE': 3982500.0,
+    'EHT Sites Count': 0,
+    'Fast Data Storage Costs': 0.0,
+    'Holding Data Storage Costs': 0.0,
+    'Infrastructure': 33000000.0,
+    'NEW SITE AVG COSTS': '',
+    'New Site Avg Antenna commissioning': 450000.0,
+    'New Site Avg Antenna construction': 2467477.054058225,
+    'New Site Avg Antenna operations': 798502.3972602739,
+    'New Site Avg Backend costs': 1800000.0,
+    'New Site Avg Design NRE': 398250.0,
+    'New Site Avg Infrastructure': 3300000.0,
+    'New Site Avg Site Media': 140000.0,
+    'New Site Avg Site Recorders': 30000.0,
+    'New Site Avg Site acquisition / leasing': 0.0,
+    'New Site Total CAPEX': 6785727.054058225,
+    'New Sites Count': 10,
+    'Personnel': 500000,
+    'SITE COSTS': '',
+    'Site Media': 1400000.0,
+    'Site Recorders': 300000,
+    'Site acquisition / leasing': 0.0,
+    'TOTAL CAPEX': 91857270.54058225,
+    'TOTAL COSTS': '',
+    'Total Sites Count': 10,
+    'Transfer Costs': 0.0}
+    
 
 
 
