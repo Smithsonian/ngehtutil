@@ -1,0 +1,118 @@
+from ngehtutil import Array, Target, Source, Schedule, Campaign, Program, Station
+from tqdm import tqdm
+import random
+import pandas as pd
+import numpy as np
+from copy import copy
+
+
+def make_array():
+    array = None
+    if True:
+        baja = Station.from_name('BAJA')
+        array = Array.from_name('ngEHT Ref. Array 1.1A')
+        for _ in range(len(array._stations),15):
+            # add a few more stations
+            array._stations.append(baja)
+    else:
+        ovro = Station.from_name('OVRO')
+        stns = []
+        for i in range(0,15):
+            s = copy(ovro)
+            # s.name = f'ovro{i}'
+            stns.append(s)
+        array = Array('test',stns)
+    return array
+
+
+def do_average(func):
+    """
+    Decorator that runs the function a number of times and returns the average
+    """
+    def wrapper(*args, **kwargs):
+        d = pd.DataFrame()
+        reps = 20
+        for i in range(0,reps):
+            d[i] = func(*args, **kwargs)
+        return tuple(np.average(d,axis=1))
+    return wrapper
+
+
+@do_average
+def number_for_diameter(diameter, construction_limit, ops_limit):
+    """ 
+    Find the number of antennas we can build that fit in the budget constraints. If an array
+    is too expensive, drop one of the antennas at random.
+    """
+    t = Target.get_default()
+    s = Source.get_default()
+    sch = Schedule(obs_per_year=1, obs_days=5, obs_hours=24)
+    c = Campaign(t,s,sch)
+
+    array = make_array()
+    while array.stations():
+        cost = Program(array, c).calculate_costs(dish_size=diameter)
+        if cost['TOTAL CAPEX'] <= construction_limit and \
+            cost['ANNUAL OPEX'] <= ops_limit:
+            # we found a set of dishes that are cheap enough
+            break
+        # too expensive - get rid of one site at random
+        array._stations.pop(random.randrange(len(array._stations)))
+    return len(array.stations()), cost['TOTAL CAPEX'], cost['ANNUAL OPEX']
+
+
+def calc_metrics(construction_limit=999e9, ops_limit=999e9):
+
+    data = pd.DataFrame()
+    data.index.name = 'diameter'
+
+    for d in tqdm(range(4,16)): # tdqm animates a progress bar
+        num, c, o = number_for_diameter(diameter = d, \
+           construction_limit=construction_limit, ops_limit = ops_limit )
+        data.loc[d,'number'] = num
+        sens = num * d * d
+        data.loc[d,'sensitivity'] = sens
+        fid = num * num
+        data.loc[d,'fidelity'] = fid
+        data.loc[d,'CAPEX'] = c
+        data.loc[d,'OPEX'] = o
+        data.loc[d,'TCO'] = c + (10 * o)
+
+    # Create normalized version of the sensitivies and fidelities
+    data.loc[:,'norm sens'] = data.loc[:,'sensitivity'] / np.max(data.loc[:,'sensitivity'])
+    data.loc[:,'norm fid'] = data.loc[:,'fidelity'] / np.max(data.loc[:,'fidelity'])
+    data.loc[:,'norm TCO'] = data.loc[:,'TCO'] / np.max(data.loc[:,'TCO'])
+
+    # reorder the columns so they match what's in the graphing spreadsheet
+    data = data[[
+        'number',
+        'sensitivity',
+        'fidelity',
+        'OPEX',
+        'CAPEX',
+        'norm sens',
+        'norm fid',
+        'TCO',
+        'norm TCO',
+    ]]
+
+    a = f'performance for const limit of {construction_limit} and ops limit of {ops_limit}\n'
+    b = data.to_csv()
+    return f'{a}\n{b}\n\n'
+
+
+def main():
+    output = []
+    constlimit = 100e6
+    opslimit_fraction = .10
+    opslimit = constlimit * opslimit_fraction
+    output.append(calc_metrics(construction_limit=constlimit))
+    output.append(calc_metrics(ops_limit=opslimit))
+    output.append(calc_metrics(construction_limit=constlimit, ops_limit=opslimit))
+
+    # print the output in a format that is easily pasted into excel
+    print('\n')
+    print('\n\n\n\n\n\n\n\n'.join(output))
+
+if __name__ == '__main__':
+    main()
