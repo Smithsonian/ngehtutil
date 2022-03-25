@@ -14,6 +14,50 @@ is installed directly from github. To install the latest plus its dependencies:
 
 ![plot](./doc/ngeht-util.png)
 
+The library consists of objects representing various components of a VLBI array that work together 
+represent a complete system. These are:
+
+* Array: represents a set of stations
+* Station: represents a location with receiver capabilities, a set of dishes, and weather info
+* Dish: represents a dish in terms of diameter, surface error, pointing model
+* Weather: represents information needed to calculate atmospheric effects for a site
+* Target: represents a place in the sky to point an array
+* Source: represents an object to be observed, as a model (e.g. fits file)
+* Schedule: represents timing of an observation: duration of an observation event; events per year
+* Campaign: represents a combination of Target, Source, and Schedule
+* Program: represents a combination of a specific array and a specific set of campaigns
+
+## Use Example
+
+For this example, we construct an array, pick a source, and calculate the costs to observe for 5 days, with 24 hours of observation total, once/year. The library has many defaults baked in for the various elements that can be overridden.
+
+    >>> t = Target.get_default() # one of the targets the library knows about
+    >>> t
+    Target M87
+    >>> s = Source.get_default() # one of the sources the library knows about
+    >>> s
+    Source M87
+    >>> sch = Schedule(obs_per_year=1, obs_days=5, obs_hours=24)
+    >>> sch
+    Schedule(1, 5, 24)
+    >>> c = Campaign(t,s,sch)
+    >>> c
+    Source M87 @ Target M87 for Schedule: 1 obs per year; 5 days per obs; 24 hours per obs
+    >>> array = Array.from_name('ngEHT Ref. Array 1.1A')
+    >>> array
+    Array ngEHT Ref. Array 1.1A
+    >>> array.stations()
+    [station OVRO, station BAR, station BAJA, station HAY, station CNI, station SGO, station CAT, station GAM, station GARS, station NZ]
+    >>> p = Program(array, c)
+    >>> costs = Program(array, c).calculate_costs(dish_size=6) # use 6m as the size of new dishes that need to be constructed for this array
+    >>> costs
+    {'ARRAY STATS': '', 'New Sites Count': 10, 'EHT Sites Count': 0, 'Total Sites Count': 10, 'Data Per Observation Per Station': 1.3824, 'Data Per Year - Full Array (PB)': 14.0, 'SITE COSTS': '', 'Design NRE': 3982500.0, 'Site acquisition / leasing': 0.0, 'Infrastructure': 33000000.0, 'Antenna construction': 24674770.54058225, 'Antenna commissioning': 4500000.0, 'Backend costs': 18000000.0, 'Antenna operations': 7985023.972602739, 'DATA MANAGEMENT': '', 'Cluster Build Cost': 6000000, 'Personnel': 500000, 'Holding Data Storage Costs': 0.0, 'Fast Data Storage Costs': 0.0, 'Transfer Costs': 0.0, 'Computation Costs': 442461.0, 'Site Recorders': 300000, 'Site Media': 1400000.0, 'Data Shipping': 3733.3333333333335, 'NEW SITE AVG COSTS': '', 'New Site Avg Design NRE': 398250.0, 'New Site Avg Site acquisition / leasing': 0.0, 'New Site Avg Infrastructure': 3300000.0, 'New Site Avg Antenna construction': 2467477.054058225, 'New Site Avg Antenna commissioning': 450000.0, 'New Site Avg Backend costs': 1800000.0, 'New Site Avg Antenna operations': 798502.3972602739, 'New Site Avg Site Recorders': 30000.0, 'New Site Avg Site Media': 140000.0, 'New Site Total CAPEX': 6785727.054058225, 'TOTAL COSTS': '', 'TOTAL CAPEX': 91857270.54058225, 'ANNUAL OPEX': 8931218.305936072}
+
+
+
+
+# IN PROGRESS BELOW HERE
+
 
 ## Station Module
 
