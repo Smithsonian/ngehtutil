@@ -1,5 +1,4 @@
 from ngehtutil import Array, Target, Source, Schedule, Campaign, Program, Station
-from tqdm import tqdm
 import random
 import pandas as pd
 import numpy as np
@@ -7,21 +6,13 @@ from copy import copy
 
 
 def make_array():
-    array = None
-    if True:
-        baja = Station.from_name('BAJA')
-        array = Array.from_name('ngEHT Ref. Array 1.1A')
-        for _ in range(len(array._stations),15):
-            # add a few more stations
-            array._stations.append(baja)
-    else:
-        ovro = Station.from_name('OVRO')
-        stns = []
-        for i in range(0,15):
-            s = copy(ovro)
-            # s.name = f'ovro{i}'
-            stns.append(s)
-        array = Array('test',stns)
+    baja = Station.from_name('BAJA')
+    array = Array.from_name('ngEHT Ref. Array 1.1A')
+    stns = array.stations()
+    for _ in range(len(array._stations),15):
+        # add a few more stations in case we can add more than the reference array thinks we can
+        stns.append(baja)
+    array.stations(stns)
     return array
 
 
@@ -66,7 +57,7 @@ def calc_metrics(construction_limit=999e9, ops_limit=999e9):
     data = pd.DataFrame()
     data.index.name = 'diameter'
 
-    for d in tqdm(range(4,16)): # tdqm animates a progress bar
+    for d in range(4,16): # tdqm animates a progress bar
         num, c, o = number_for_diameter(diameter = d, \
            construction_limit=construction_limit, ops_limit = ops_limit )
         data.loc[d,'number'] = num
@@ -106,8 +97,11 @@ def main():
     constlimit = 100e6
     opslimit_fraction = .10
     opslimit = constlimit * opslimit_fraction
+    print(f'working on construction-limit only')
     output.append(calc_metrics(construction_limit=constlimit))
+    print(f'working on operations-limit only')
     output.append(calc_metrics(ops_limit=opslimit))
+    print(f'working on both limits')
     output.append(calc_metrics(construction_limit=constlimit, ops_limit=opslimit))
 
     # print the output in a format that is easily pasted into excel
