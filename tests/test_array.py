@@ -14,3 +14,10 @@ class TestClass(unittest.TestCase):
 
         a = Array.get_default()
         self.assertEqual(type(a),Array)
+
+    def test_array_init(self):
+        with self.assertRaises(ValueError):
+            a = Array('test','test')
+
+        with self.assertRaises(ValueError):
+            a = Array('test',['test'])

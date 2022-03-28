@@ -3,6 +3,11 @@
 *ngeht-util* is a library of python modules to help in the design, development, and analysis of the
 ngEHT VLBI telescope. It consists of four models: station, source, target, and cost.
 
+One purpose of the system is to maintain a database of known sites, array definitions, source
+models, and sky locations. By using a single library for all of our tools, we can be certain that
+we're all talking about the same thing when we say "the reference array" or "OVRO." When the library
+loaded, the database of these known items is loaded and ready for use.
+
 ## Installation
 
 The library is installed using pip, and it is recommended to use a virtual environment. The library
@@ -92,10 +97,54 @@ For this example, we construct an array, pick a source, and calculate the costs 
     'TOTAL CAPEX': 91857270.54058225,
     'ANNUAL OPEX': 8931218.305936072}
 
+## Array: a set of stations
+
+Class to represent an Array, comprising a set of Station objects. The module loads a set
+of known arrays that can be accessed through class methods.
+
+### Class / Static Methods
+
+    Array.from_name(name)
+    # Returns an Array object from the database by name. Will raise an exception 
+    # if the array name is unknown.
+
+    Array.get_default()
+    # Returns an Array object representing the default array
+
+    Array.get_default_array_name()
+    # Returns the name of the first known array in the builtin database
+
+    Array.get_station_names(name)
+    # Get list of station names associated with an array
+
+    Array.get_list()
+    # Get the list of arrays in the database as a list of names
+
+### Instance Methods
+
+    a = Array(name, stations)
+    # Initializes an Array object from a name and a list of Station objects
+
+    a.stations()
+    # Return the stations comprising this array
+ 
+    a.stations(stations)
+    # Set the list of stations comprising this array
 
 
 # IN PROGRESS BELOW HERE
 
+## Station: represents a location with receiver capabilities, a set of dishes, and weather info
+## Dish: represents a dish in terms of diameter, surface error, pointing model
+## Weather: represents information needed to calculate atmospheric effects for a site
+## Target: represents a place in the sky to point an array
+## Source: represents an object to be observed, as a model (e.g. fits file)
+## Schedule: represents timing of an observation: duration of an observation event; events per year
+## Campaign: represents a combination of Target, Source, and Schedule
+## Program: represents a combination of a specific array and a specific set of campaigns
+
+
+# OLD STUFF BELOW HERE
 
 ## Station Module
 

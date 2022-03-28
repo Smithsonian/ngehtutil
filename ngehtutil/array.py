@@ -1,5 +1,7 @@
 """
 Manage things to do with arrays
+
+Originator: Aaron Oppenheimer March 2020
 """
 import csv
 from pathlib import Path
@@ -22,41 +24,46 @@ def _init_arrays():
 _init_arrays()
 
 class Array:
+    """
+    Class to represent an Array, comprising a set of Station objects. The module loads a set
+    of known arrays that can be accessed through class methods.
+    """
     name = None
     _stations = []
 
-    # Static methods t get the list of possible items and to get the actual objects
-
     @staticmethod
     def get_list():
-        """get the list of array names we have in the database"""
+        """ Get the list of arrays in the database as a list of names """
         return list(_THE_ARRAYS.keys())
 
     @classmethod
     def get_default_array_name(cls):
+        """ Returns the name of the first known array in the builtin database """
         return cls.get_list()[0]
 
     @classmethod
     def get_default(cls):
+        """ Returns an Array object representing the default array """
         return cls.from_name(cls.get_default_array_name())
 
     @classmethod
     def get_station_names(cls, name):
-        """ get list of station names associated with an array """
+        """ Get list of station names associated with an array """
         return _THE_ARRAYS[name]
-
-    # @staticmethod
-    # def get_station_names(array):
-    #     return _THE_ARRAYS[array]
-
-    def __init__(self, name, stations):
-        self.name = name if name else '[none]'
-        self.stations(stations)
 
     @classmethod
     def from_name(cls, name):
+        """
+        Returns an Array object from the database by name. Will raise an exception if the
+        array name is unknown.
+        """
         stations = [Station.from_name(x) for x in _THE_ARRAYS[name]]
         return cls(name, stations)
+
+    def __init__(self, name, stations):
+        """Initialize an Array object"""
+        self.name = name if name else '[none]'
+        self.stations(stations)
 
     def stations(self, stns = None):
         """ return the stations comprising this array, or set it """

@@ -1,16 +1,20 @@
 """
 Classes to describe VLBI campaigns
+
+Originator: Aaron Oppenheimer March 2020
 """
 
 class Schedule():
     """
-    Describes an observation schedule
+    Describes an observation schedule in terms of number of events per year, duration of event in days,
+    and data captured by hours observed.
     """
     obs_per_year = None # number of observations in a year
     obs_days = None # number of days for each observation
     obs_hours = None # total number of hours per observation
 
     def __init__(self, obs_per_year=1, obs_days=5, obs_hours=15):
+        """ Initialize a schedule """
         self.obs_per_year = obs_per_year
         self.obs_days = obs_days
         self.obs_hours = obs_hours
@@ -22,6 +26,8 @@ class Schedule():
         return f'Schedule: {self.obs_per_year} obs per year; {self.obs_days} days per obs; {self.obs_hours} hours per obs'
 
     def __add__(self, value):
+        """ Combine two schedules into a single schedule """
+
         if not type(value) is Schedule:
             raise TypeError
 
@@ -31,6 +37,10 @@ class Schedule():
 
 
 class Campaign:
+    """
+    Class to describe a "campaign" which comprises a target in the sky, a source to observe,
+    and a schedule for the observation.
+    """
     schedule = None
     target = None
     source = None
