@@ -3,6 +3,7 @@ import random
 import pandas as pd
 import numpy as np
 from copy import copy
+import sys
 
 
 def make_array():
@@ -72,7 +73,8 @@ def calc_metrics(construction_limit=999e9, ops_limit=999e9):
     # Create normalized version of the sensitivies and fidelities
     data.loc[:,'norm sens'] = data.loc[:,'sensitivity'] / np.max(data.loc[:,'sensitivity'])
     data.loc[:,'norm fid'] = data.loc[:,'fidelity'] / np.max(data.loc[:,'fidelity'])
-    data.loc[:,'norm TCO'] = data.loc[:,'TCO'] / np.max(data.loc[:,'TCO'])
+    data.loc[:,'norm TCO'] = np.max(data.loc[:,'TCO']) - data.loc[:,'TCO']
+    data.loc[:,'norm TCO'] = (data.loc[:,'norm TCO'] / np.max(data.loc[:,'norm TCO']))
 
     # reorder the columns so they match what's in the graphing spreadsheet
     data = data[[
@@ -97,11 +99,11 @@ def main():
     constlimit = 100e6
     opslimit_fraction = .10
     opslimit = constlimit * opslimit_fraction
-    print(f'working on construction-limit only')
+    print(f'working on construction-limit only', file=sys.stderr)
     output.append(calc_metrics(construction_limit=constlimit))
-    print(f'working on operations-limit only')
+    print(f'working on operations-limit only',  file=sys.stderr)
     output.append(calc_metrics(ops_limit=opslimit))
-    print(f'working on both limits')
+    print(f'working on both limits', file=sys.stderr)
     output.append(calc_metrics(construction_limit=constlimit, ops_limit=opslimit))
 
     # print the output in a format that is easily pasted into excel
