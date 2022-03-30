@@ -133,7 +133,7 @@ def calculate_costs(cost_config, sites, const_filename=None):
                                  data_management_costs[['Cluster Build Cost',
                                                         'Site Recorders',
                                                         'Site Media']].sum()
-    total_costs['ANNUAL OPEX'] = total_site_costs['Antenna operations'] +\
+    total_costs['ANNUAL OPEX'] = total_site_costs[['Antenna operations', 'Fulltime staff']].sum() +\
                                  data_management_costs[['Personnel',
                                                         'Holding Data Storage Costs',
                                                         'Fast Data Storage Costs',
@@ -304,9 +304,13 @@ def calculate_capital_costs(cost_config, sites):
     return total_site_costs, new_site_costs
 
 ###
-### Antenna Operations Costs Per Observation Day, which is primarily about staffing
+### Antenna Operations Costs Per Observation Year, which is primarily about staffing
 ###
 def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_year):
+    """
+    Calculate the cost of operating the sites for a year, which is mostly about staffing.
+    Uses both per-obeserving-night plus costs of some full-time staff.
+    """
     global CONSTANTS_TABLES
     const = CONSTANTS_TABLES
     array_stats = {}
@@ -420,6 +424,16 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
     new_sites = [i for i,x in enumerate(sites) if not x.eht]
     new_site_costs = \
         site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)
+
+    # assume we have a full-time staff of 6 people to coordinate operations
+    cost_of_fulltime_staff = \
+        2 * const['labor_cost_values_table'].loc[:,'N. America'].loc['science_salary'] + \
+        2 * const['labor_cost_values_table'].loc[:,'N. America'].loc['engineering_salary'] + \
+        2 * const['labor_cost_values_table'].loc[:,'N. America'].loc['technician_salary']
+
+    total_site_costs['Fulltime staff'] = cost_of_fulltime_staff
+    new_site_costs['Fulltime staff'] = cost_of_fulltime_staff
+
     return total_site_costs, new_site_costs
 
 
