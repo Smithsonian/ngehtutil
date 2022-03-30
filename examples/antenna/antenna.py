@@ -7,12 +7,9 @@ import sys
 
 
 def make_array():
-    baja = Station.from_name('BAJA')
+    # make a large array out of real stations
     array = Array.from_name('ngEHT Ref. Array 1.1A')
-    stns = array.stations()
-    for _ in range(len(array._stations),15):
-        # add a few more stations in case we can add more than the reference array thinks we can
-        stns.append(baja)
+    stns = array.stations() + array.stations()
     array.stations(stns)
     return array
 
