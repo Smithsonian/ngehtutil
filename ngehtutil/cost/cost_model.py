@@ -425,11 +425,11 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
     new_site_costs = \
         site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)
 
-    # assume we have a full-time staff of 6 people to coordinate operations
+    # assume we have a full-time staff of 10 people to coordinate operations
     cost_of_fulltime_staff = \
-        2 * const['labor_cost_values_table'].loc[:,'N. America'].loc['science_salary'] + \
-        2 * const['labor_cost_values_table'].loc[:,'N. America'].loc['engineering_salary'] + \
-        2 * const['labor_cost_values_table'].loc[:,'N. America'].loc['technician_salary']
+        3 * const['labor_cost_values_table'].loc[:,'N. America'].loc['science_salary'] + \
+        4 * const['labor_cost_values_table'].loc[:,'N. America'].loc['engineering_salary'] + \
+        3 * const['labor_cost_values_table'].loc[:,'N. America'].loc['technician_salary']
 
     total_site_costs['Fulltime staff'] = cost_of_fulltime_staff
     new_site_costs['Fulltime staff'] = cost_of_fulltime_staff
