@@ -7,13 +7,13 @@ import sys
 import math
 
 
-def make_array(max):
+def make_array():
     # make a large array out of real stations
     array = Array.from_name('ngEHT Ref. Array 1.1A')
-    stns = array.stations() + array.stations()
-    for _ in range(len(stns), math.ceil(max), -1):
-        stns.pop(random.randrange(len(stns)))
-    array.stations(stns)
+    stns = array.stations()
+    # we want to have a few extras, just pick an average station and add a few
+    s = Station.from_name('BAR')
+    array.stations(stns + [s]*4)
     return array
 
 
@@ -23,7 +23,7 @@ def do_average(func):
     """
     def wrapper(*args, **kwargs):
         d = pd.DataFrame()
-        reps = 20
+        reps = 25
         for i in range(0,reps):
             d[i] = func(*args, **kwargs)
         return tuple(np.average(d,axis=1))
@@ -31,7 +31,7 @@ def do_average(func):
 
 
 @do_average
-def number_for_diameter(diameter, construction_limit, ops_limit, max=20):
+def number_for_diameter(diameter, construction_limit, ops_limit):
     """ 
     Find the number of antennas we can build that fit in the budget constraints. If an array
     is too expensive, drop one of the antennas at random.
@@ -41,7 +41,7 @@ def number_for_diameter(diameter, construction_limit, ops_limit, max=20):
     sch = Schedule(obs_per_year=1, obs_days=5, obs_hours=24)
     c = Campaign(t,s,sch)
 
-    array = make_array(max)
+    array = make_array()
     while array.stations():
         cost = Program(array, c).calculate_costs(dish_size=diameter)
         if cost['TOTAL CAPEX'] <= construction_limit and \
@@ -58,10 +58,9 @@ def calc_metrics(construction_limit=999e9, ops_limit=999e9):
     data = pd.DataFrame()
     data.index.name = 'diameter'
 
-    num = 10
     for d in range(4,16): # tdqm animates a progress bar
         num, c, o = number_for_diameter(diameter = d, \
-           construction_limit=construction_limit, ops_limit = ops_limit, max=num )
+           construction_limit=construction_limit, ops_limit = ops_limit )
         data.loc[d,'number'] = num
         sens = num * d * d
         data.loc[d,'sensitivity'] = sens
