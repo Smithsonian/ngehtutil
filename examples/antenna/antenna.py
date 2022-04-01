@@ -4,12 +4,15 @@ import pandas as pd
 import numpy as np
 from copy import copy
 import sys
+import math
 
 
-def make_array():
+def make_array(max):
     # make a large array out of real stations
     array = Array.from_name('ngEHT Ref. Array 1.1A')
     stns = array.stations() + array.stations()
+    for _ in range(len(stns), math.ceil(max), -1):
+        stns.pop(random.randrange(len(stns)))
     array.stations(stns)
     return array
 
@@ -28,7 +31,7 @@ def do_average(func):
 
 
 @do_average
-def number_for_diameter(diameter, construction_limit, ops_limit):
+def number_for_diameter(diameter, construction_limit, ops_limit, max=20):
     """ 
     Find the number of antennas we can build that fit in the budget constraints. If an array
     is too expensive, drop one of the antennas at random.
@@ -38,7 +41,7 @@ def number_for_diameter(diameter, construction_limit, ops_limit):
     sch = Schedule(obs_per_year=1, obs_days=5, obs_hours=24)
     c = Campaign(t,s,sch)
 
-    array = make_array()
+    array = make_array(max)
     while array.stations():
         cost = Program(array, c).calculate_costs(dish_size=diameter)
         if cost['TOTAL CAPEX'] <= construction_limit and \
@@ -55,9 +58,10 @@ def calc_metrics(construction_limit=999e9, ops_limit=999e9):
     data = pd.DataFrame()
     data.index.name = 'diameter'
 
+    num = 10
     for d in range(4,16): # tdqm animates a progress bar
         num, c, o = number_for_diameter(diameter = d, \
-           construction_limit=construction_limit, ops_limit = ops_limit )
+           construction_limit=construction_limit, ops_limit = ops_limit, max=num )
         data.loc[d,'number'] = num
         sens = num * d * d
         data.loc[d,'sensitivity'] = sens
