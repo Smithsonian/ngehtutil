@@ -25,15 +25,17 @@ class Schedule():
     def __str__(self):
         return f'Schedule: {self.obs_per_year} obs per year; {self.obs_days} days per obs; {self.obs_hours} hours per obs'
 
-    def __add__(self, value):
-        """ Combine two schedules into a single schedule """
 
-        if not type(value) is Schedule:
-            raise TypeError
+    # THIS DOESN'T DO THE RIGHT THING - For 1,2,3 + 1,2,3 we should not end up with 2 4-day events
+    # def __add__(self, value):
+    #     """ Combine two schedules into a single schedule """
 
-        return Schedule(obs_per_year = self.obs_per_year + value.obs_per_year,
-                        obs_days = self.obs_days + value.obs_days,
-                        obs_hours = self.obs_hours + value.obs_hours)
+    #     if not type(value) is Schedule:
+    #         raise TypeError
+
+    #     return Schedule(obs_per_year = self.obs_per_year + value.obs_per_year,
+    #                     obs_days = self.obs_days + value.obs_days,
+    #                     obs_hours = self.obs_hours + value.obs_hours)
 
 
 class Campaign:
