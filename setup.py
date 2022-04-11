@@ -12,7 +12,10 @@ setup(
     include_package_data=True,
     install_requires=['pandas',
                       'openpyxl',
-                      'pillow'                     
+                      'pillow',
+                      'ehtim',
+                      'jupyter-console',
+                      'requests'                     
                       ],
 
     classifiers=[
