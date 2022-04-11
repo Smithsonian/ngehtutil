@@ -4,6 +4,8 @@ Manage things to do with arrays
 Originator: Aaron Oppenheimer March 2020
 """
 import csv
+import numpy as np
+import ehtim as eh
 from pathlib import Path
 from .station import Station
 
@@ -75,6 +77,27 @@ class Array:
             self._stations = stns
 
         return self._stations
+
+    def to_ehtim_array(self, freq, filled=0.7, month=5):
+        """
+        Returns an ehtim array object.
+         
+         freq is the measurement frequency (GHz)
+         filled is the geometric filling factor (unobscured telescope fraction)
+         month is the observation month (1-12)
+        
+        """
+        tarr = np.recarray(len(self.stations()),dtype=eh.const_def.DTARR)
+        for isite, site in enumerate(self.stations()):
+            xyz = site.xyz()
+            SEFD = site.SEFD(freq,site.elevation,filled=filled,month=month)
+            tarr[isite]['site'] = site.name
+            tarr[isite]['x'] = xyz[0]
+            tarr[isite]['y'] = xyz[1]
+            tarr[isite]['z'] = xyz[2]
+            tarr[isite]['sefdr'] = SEFD
+            tarr[isite]['sefdl'] = SEFD
+        return eh.array.Array(tarr)
 
     def __str__(self):
         return f'Array {self.name}'
