@@ -132,6 +132,111 @@ of known arrays that can be accessed through class methods.
     # Set the list of stations comprising this array
 
 
+## Station: a location with receiver capabilities, a set of dishes, and weather info
+
+Class to represent a Station, comprising attributes of the receiver, a set of Dish objects, and
+(coming soon) information about weather at the site. The module loads a set of known stations that
+can be accessed through class methods.
+
+### Class / Static Methods
+
+    Station.from_name(name)
+    # Returns a Station object from the database by name. Will raise an exception
+    # if the station name is unknown.
+
+    Station.get_list()
+    # Get the list of stations in the database as a list of names
+
+    Station.get_all()
+    # Returns all of the Station objects from the database as a list
+
+
+### Instance Methods
+
+    s = Station(name, **kwargs)
+    # Initializes a Station object from a name and an optional set of keyword arguments. See below
+    # for the list of attributes that can be set this way.
+
+    s.to_dict()
+    # Returns a dictionary of station attributes
+
+    s.data_rate()
+    # Convenience function to calculate the rate at which a station captures data according to
+    # its attributes. Since recording_bandwidth is defined in GHz, return is in gigabits/second.
+    #               self.recording_bandwidth * self.recording_frequencies * \
+    #                    self.polarizations * self.sidebands * self.bit_depth * 2 
+
+    s.xyz()
+    # Convenience function to return the location of a site in XYZ coordinates from the lat, lon,
+    # elevation attributes of a Station object.
+
+    s.SEFD(freq, elev, filled=0.7, month=5)
+    # Convenience function to calculate SEFD for a particular month given various attributes
+    # of a site. [UNDER CONSTRUCTION]
+
+
+### Attributes
+
+    # These attributes of a Station object can be passed in as part of initialization. The site
+    # database has these attributes, but they can be overridden or built up from scratch.
+    #
+    # Shown here are the default values if not initialized:
+
+    s = Station('name',
+        id = None # text code for the station. This need not be the same as the name.
+        locality = None # where the station is located
+        country = None # where the station is located
+        latitude = None
+        longitude = None
+        elevation = None
+        site_or_region = None # whether this represents a specific site or an entire 
+                            # region (one of 'Site' or 'Region')
+        owner = None
+        register_converter = None
+        polar_nonpolar = None # one of 'Polar' or 'Non-polar'
+        existing_infrastructure = None # one of 'Partial' 'Complete' 'Remote'
+        site_acquisition = None # 0 if the site does not need to be aqcuired, otherwise 1
+        radiometer_testing = None # 'Yes' if the site has been surveryed with radiometer, else 'No'
+        uv_M87 = None # 1 if site can contribute to UV plane for M87 observation, else 0
+        uv_SgrA = None # 1 if site can contribute to UV plane for SgrA* obs, else 0
+        dishes = None # list of Dish objects
+        autonomy_of_operations = 'Manual' # one of 'Manual' 'Somewhat Autonomous' 'Semi-Autonomous',
+                                        # or 'Fully Autonomous'
+        recording_bandwidth = 8 # in GHz
+        recording_frequencies = [] # list of frequencies, e.g. [86, 230, 345]
+        polarizations = 2 # number of polarizations to receiver
+        sidebands = 2 # number of sidebands to capture
+        bit_depth = 2 # bit depth to record
+        pwv = [0] * 12 # pwv for this site by month
+        eht = False # True if the site is part of the EHT observations in 2022
+    )
+
+## Dish: a since radio antenna at a site
+
+Class to represent a Dish. A Station has a list of Dish objects.
+
+## Instance Methods
+
+    d = Dish(size=6, surface_error=0, pointing_model=None)
+    # Returns a Dish object with the given attributes. Size is diameter of the dish in meters;
+    # surface_error is the rms error in microns; the pointing model is under development
+
+## Weather: a model of weather at the site
+
+Under construction
+
+## Target: a place in the sky to point an array
+
+## Source: an object in the sky to be observed
+
+## Schedule: timing of an observation
+
+## Campaign: a combination of Target, Source, and Schedule
+
+## Program: a combination of a specific array and a set of campaigns
+
+
+
 # IN PROGRESS BELOW HERE
 
 ## Station: represents a location with receiver capabilities, a set of dishes, and weather info
