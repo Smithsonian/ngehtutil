@@ -30,7 +30,7 @@ class Dish:
 
 class Station:
     id = None
-    locatlity = None
+    locality = None
     country = None
     latitude = None
     longitude = None
@@ -40,6 +40,7 @@ class Station:
     owner = None
     register_converter = None
     polar_nonpolar = None
+    existing_dish = None
     existing_infrastructure = None
     site_acquisition = None
     radiometer_testing = None
@@ -112,7 +113,10 @@ class Station:
         count = kwargs.get('Antenna Count',1)
         size = kwargs.get('Dish Dia.',6)
         if np.isnan(size):
+            self.existing_dish = False
             size = 6
+        else:
+            self.existing_dish = True
         self.dishes = [Dish(size=size)] * count
 
         self.recording_frequencies = []
@@ -255,6 +259,17 @@ class Station:
         # Calculate the SEFD
         the_SEFD = Tsys_star/DPFU
         return the_SEFD
+
+    def diameter(self):
+        """
+        Return the effective diameter of the station
+        """
+
+        area = 0.0
+        for dish in self.dishes:
+            area += float(dish.size)**2.0
+
+        return np.sqrt(area)
 
     def __str__(self):
         return f'station {self.name}'
