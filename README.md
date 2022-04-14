@@ -177,6 +177,11 @@ can be accessed through class methods.
     # Convenience function to calculate SEFD for a particular month given various attributes
     # of a site. [UNDER CONSTRUCTION]
 
+    s.set_diameter(diameter)
+    # sets the diameter of all dishes at the station to [diameter]. If the station does not have
+    # any dishes, creates a single dish with diameter [diameter] and default parameters for other
+    # dish attributes.
+
 
 ### Attributes
 

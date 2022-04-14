@@ -20,9 +20,23 @@ class TestClass(unittest.TestCase):
         self.assertEqual(type(info),Station)
         self.assertEqual(info.name, sl[0])
 
+    def test_station_diameter(self):
+        s = Station.from_name('CNI') # pick one we know doesn't have a dish
+        self.assertEqual(s.dishes, None)
+
+        s.set_diameter(10)
+        self.assertEqual(len(s.dishes),1)
+        self.assertEqual(s.dishes[0].diameter,10)
+
     def test_station_SEFD(self):
         sl = Station.get_list()
         s = Station(sl[0])
+
+        s.dishes = None
+        with self.assertRaises(ValueError):
+            sefd = s.SEFD(230,90)
+
+        s.set_diameter(6)
         sefd = s.SEFD(230,90)
         self.assertTrue(sefd >= 0)
 

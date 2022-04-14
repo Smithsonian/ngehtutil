@@ -251,6 +251,8 @@ def calculate_capital_costs(cost_config, sites):
         single_antenna_cost = antenna_constant + \
                     (antenna_factor * pow(dish_size, antenna_exp))
 
+        if site.dishes is None:
+            site.set_diameter(dish_size) # the site was under-defined, so give it a dish
         number_of_antennas = len(site.dishes)
 
         if not site.eht:

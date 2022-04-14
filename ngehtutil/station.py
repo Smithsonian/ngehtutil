@@ -12,20 +12,20 @@ class Dish:
     """
     Class to describe a single dish antenna
     """
-    size = 6 # size in meters
+    diameter = 6 # diameter in meters
     surface_error = 0 # rms surface error in microns
     pointing_model = None # TBD description of pointing limits
 
-    def __init__(self, size=6, surface_error=0, pointing_model=None):
-        self.size = size
+    def __init__(self, diameter=6, surface_error=0, pointing_model=None):
+        self.diameter = diameter
         self.surface_error = surface_error
         self.pointing_model = pointing_model
 
     def __str__(self):
-        return f'{self.size}m dish'
+        return f'{self.diameter}m dish'
 
     def __repr__(self):
-        return f'{self.size}m dish'
+        return f'{self.diameter}m dish'
 
 
 class Station:
@@ -71,7 +71,7 @@ class Station:
 
     @staticmethod
     def from_name(name):
-        """ Returns a station object from a name """
+        """ Returns a station object from a name. """
         return _THE_STATIONS[name]
 
     @staticmethod
@@ -106,18 +106,21 @@ class Station:
             'Antenna Count':'antenna_count',
             'RMS surf err':'rms_surf_error',
             'pwv':'pwv',
-            'Dish Dia.':'dish_size',
+            'Dish Dia.':'dish_diameter',
         }
 
         # first see if there are dishes described
-        count = kwargs.get('Antenna Count',1)
-        size = kwargs.get('Dish Dia.',6)
-        if np.isnan(size):
+        count = kwargs.get('Antenna Count',0)
+        diameter = kwargs.get('Dish Dia.',0)
+
+        if diameter == 0:
             self.existing_dish = False
-            size = 6
+            self.dishes = None
         else:
             self.existing_dish = True
-        self.dishes = [Dish(size=size)] * count
+            if count==0:
+                raise ValueError(f'Site {name} has no antennas')
+            self.dishes = [Dish(diameter=diameter)] * count
 
         self.recording_frequencies = []
         for k in ['86 GHz', '230 GHz', '345 GHz']:
@@ -154,6 +157,16 @@ class Station:
                 if isinstance(v,(str, float, int, list, dict, bool, np.integer)):
                     ret[k] = v
         return ret
+
+
+    def set_diameter(self, diameter):
+        """ sets the diameter of all of the dishes in the array. If there are no dishes
+            defined, creates a single dish """
+        if self.dishes:
+            for d in self.dishes:
+                d.diameter=diameter
+        else:
+            self.dishes=[Dish(diameter=diameter)]
 
 
     def data_rate(self):
@@ -216,9 +229,11 @@ class Station:
         % Get coefficients for PWV -> tau_0 based on frequency
 
         """
+        if self.dishes is None:
+            raise ValueError('Station needs a dish ')
 
         N = len(self.dishes)
-        D = self.dishes[0].size
+        D = self.dishes[0].diameter
         RMS = self.dishes[0].surface_error
         PWV = self.pwv[month-1]
 
@@ -267,7 +282,7 @@ class Station:
 
         area = 0.0
         for dish in self.dishes:
-            area += float(dish.size)**2.0
+            area += float(dish.diameter)**2.0
 
         return np.sqrt(area)
 
