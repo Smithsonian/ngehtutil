@@ -84,32 +84,6 @@ class Station:
 
         self.name = name
 
-        # # these are the labels in the excel file that defines stations, mapped to the attribute
-        # # names we really want
-        # attribute_map = {
-        #     'ID':'id',
-        #     'Locality':'locality',
-        #     'Country':'country',
-        #     'Latitude':'latitude',
-        #     'Longitude':'longitude',
-        #     'Elevation':'elevation',
-        #     'Site or Region':'site_or_region',
-        #     'Owner':'owner',
-        #     'Antenna Count':'antenna_count',
-        #     'Region':'region',
-        #     'Polar/Non-polar':'polar_nonpolar',
-        #     'EHT':'eht',
-        #     'Existing Infrastructure':'existing_infrastructure',
-        #     'Site Acquisition':'site_acquisition',
-        #     'Radiometer Testing':'radiometer_testing',
-        #     'uv_M87':'uv_M87',
-        #     'uv_SgrA*':'uv_SgrA',
-        #     'Antenna Count':'antenna_count',
-        #     'RMS surf err':'rms_surf_error',
-        #     'pwv':'pwv',
-        #     'Dish Dia.':'dish_diameter',
-        # }
-
         # first see if there are dishes described
         count = kwargs.get('antenna_count',0)
         diameter = kwargs.get('dish_diameter',0)
