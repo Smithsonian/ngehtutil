@@ -1,5 +1,6 @@
 # test arrays
 from ngehtutil import *
+from ngehtutil.station_weather import delete_sites
 import unittest
 
 class TestClass(unittest.TestCase):
@@ -50,3 +51,11 @@ class TestClass(unittest.TestCase):
             n = len(stn.recording_frequencies)
             self.assertTrue(n>=1)
             self.assertTrue(n<=3)
+
+    def test_station_weather(self):
+        s = Station.from_name('HAY')
+        data = s.get_weather('SEFD_info_230',2009,8,16)
+        self.assertTrue(type(data['data']) is list)
+        self.assertTrue(len(data['data']) > 0)
+        self.assertTrue(type(data['data'][0]) is tuple)
+        delete_sites()
