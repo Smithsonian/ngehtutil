@@ -84,35 +84,35 @@ class Station:
 
         self.name = name
 
-        # these are the labels in the excel file that defines stations, mapped to the attribute
-        # names we really want
-        attribute_map = {
-            'ID':'id',
-            'Locality':'locality',
-            'Country':'country',
-            'Latitude':'latitude',
-            'Longitude':'longitude',
-            'Elevation':'elevation',
-            'Site or Region':'site_or_region',
-            'Owner':'owner',
-            'Antenna Count':'antenna_count',
-            'Region':'region',
-            'Polar/Non-polar':'polar_nonpolar',
-            'EHT':'eht',
-            'Existing Infrastructure':'existing_infrastructure',
-            'Site Acquisition':'site_acquisition',
-            'Radiometer Testing':'radiometer_testing',
-            'uv_M87':'uv_M87',
-            'uv_SgrA*':'uv_SgrA',
-            'Antenna Count':'antenna_count',
-            'RMS surf err':'rms_surf_error',
-            'pwv':'pwv',
-            'Dish Dia.':'dish_diameter',
-        }
+        # # these are the labels in the excel file that defines stations, mapped to the attribute
+        # # names we really want
+        # attribute_map = {
+        #     'ID':'id',
+        #     'Locality':'locality',
+        #     'Country':'country',
+        #     'Latitude':'latitude',
+        #     'Longitude':'longitude',
+        #     'Elevation':'elevation',
+        #     'Site or Region':'site_or_region',
+        #     'Owner':'owner',
+        #     'Antenna Count':'antenna_count',
+        #     'Region':'region',
+        #     'Polar/Non-polar':'polar_nonpolar',
+        #     'EHT':'eht',
+        #     'Existing Infrastructure':'existing_infrastructure',
+        #     'Site Acquisition':'site_acquisition',
+        #     'Radiometer Testing':'radiometer_testing',
+        #     'uv_M87':'uv_M87',
+        #     'uv_SgrA*':'uv_SgrA',
+        #     'Antenna Count':'antenna_count',
+        #     'RMS surf err':'rms_surf_error',
+        #     'pwv':'pwv',
+        #     'Dish Dia.':'dish_diameter',
+        # }
 
         # first see if there are dishes described
-        count = kwargs.get('Antenna Count',0)
-        diameter = kwargs.get('Dish Dia.',0)
+        count = kwargs.get('antenna_count',0)
+        diameter = kwargs.get('dish_diameter',0)
 
         if diameter == 0:
             self.existing_dish = False
@@ -124,8 +124,8 @@ class Station:
             self.dishes = [Dish(diameter=diameter)] * count
 
         self.recording_frequencies = []
-        for k in ['86 GHz', '230 GHz', '345 GHz']:
-            n = kwargs.get(k,0) 
+        for k in ['86', '230', '345']:
+            n = kwargs.get(f'has_{k}',0) 
             if n == 1:
                 self.recording_frequencies.append(k)
         if self.recording_frequencies == []:
@@ -135,16 +135,10 @@ class Station:
             # convert column headings in spreadsheet to our attribute names
             # todo - we skip some that might be helpful
 
-            if k in ['Antenna Count', 'Dish Dia.', '86 GHz', '230 GHz', '345 GHz']:
+            if k in ['antenna_count', 'dish_diameter', 'has_86', 'has_230', 'has_345']:
                 pass
-            elif k in attribute_map:
-                mapkey = attribute_map[k]
-                setattr(self, mapkey, v)
-            elif k in attribute_map.values():
-                setattr(self, k, v)
             else:
-                raise ValueError(f'bad attribute for station: {k}')
-
+                setattr(self, k, v)
 
         # stn['lat'] = np.arcsin( stn['z']/np.sqrt(stn['x']**2+stn['y']**2+stn['z']**2) ) * 180./np.pi
         # stn['lon'] = np.arctan2( stn['y'], stn['x'] ) * 180.0/np.pi
@@ -305,7 +299,7 @@ class Station:
 ##
 
 
-SITE_FILE_NAME = 'Telescope_Site_Matrix_20220218.xlsx'
+SITE_FILE_NAME = 'telescope_sites.xlsx'
 
 def _site_file_path():
     path=str(Path(__file__).parent) + '/config'
@@ -318,13 +312,10 @@ def _init_stations():
 
         _THE_STATIONS = {}
         sites_data = pd.read_excel(_site_file_path(), index_col=0, \
-            sheet_name='Basic Site Data')
-        pwv_data = pd.read_excel(_site_file_path(), index_col=0, \
-            sheet_name='PWV')
+            sheet_name='Basic Site Data', skiprows=[1])
         for s in sites_data.index:
             d = sites_data.loc[s]
-            pwv = list(pwv_data.loc[s])
-            stn = Station(name=s, pwv=pwv, **dict(d))
+            stn = Station(name=s, **dict(d))
             _THE_STATIONS[s] = stn
 
 _init_stations()
