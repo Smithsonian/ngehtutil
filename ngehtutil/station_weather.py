@@ -6,39 +6,41 @@ import requests
 import os
 from pathlib import Path
 import shutil
+import pandas as pd
+
+
+monthmap = {
+    1: '01Jan',
+    2: '02Feb',
+    3: '03Mar',
+    4: '04Apr',
+    5: '05May',
+    6: '06Jun',
+    7: '07Jul',
+    8: '08Aug',
+    9: '09Sep',
+    10: '10Oct',
+    11: '11Nov',
+    12: '12Dec'
+}
+
+urlbase = 'https://raw.githubusercontent.com/Smithsonian/ngeht-weather/main/weather_data'
+filenames = [
+            'RH.csv',
+            'SEFD_info_230.csv',
+            'SEFD_info_345.csv',
+            'mean_RH.csv',
+            'mean_SEFD_info_230.csv',
+            'mean_SEFD_info_345.csv',
+            'mean_wind_speed.csv',
+            'wind_speed.csv',
+        ]
+
+homepath=str(Path(__file__).parent) + '/weather_data'
 
 def load_site(sitename, months=None):
     """ Makes sure we have the data for a site for the given months, which is
         a list of month numbers 1-12, or None which means all. """
-    
-    monthmap = {
-        1: '01Jan',
-        2: '02Feb',
-        3: '03Mar',
-        4: '04Apr',
-        5: '05May',
-        6: '06Jun',
-        7: '07Jul',
-        8: '08Aug',
-        9: '09Sep',
-        10: '10Oct',
-        11: '11Nov',
-        12: '12Dec'
-    }
-
-    urlbase = 'https://raw.githubusercontent.com/Smithsonian/ngeht-weather/main/weather_data'
-    filenames = [
-                'RH.csv',
-                'SEFD_info_230.csv',
-                'SEFD_info_345.csv',
-                'mean_RH.csv',
-                'mean_SEFD_info_230.csv',
-                'mean_SEFD_info_345.csv',
-                'mean_wind_speed.csv',
-                'wind_speed.csv',
-            ]
-
-    homepath=str(Path(__file__).parent) + '/weather_data'
 
     if not months:
         months = list(range(1,13))
@@ -80,5 +82,25 @@ def delete_sites():
     homepath=str(Path(__file__).parent) + '/weather_data'
     try:
         shutil.rmtree(homepath)
-    except OSError as e:
-        print("Error: %s : %s" % (homepath, e.strerror))
+    except FileNotFoundError:
+        pass
+
+
+def get_weather_data(site, type, year, month, day):
+    """ return specific information from the weather data """
+
+    # make sure we have the files
+    load_site(site, month)
+
+    # get the data
+    homepath=str(Path(__file__).parent) + '/weather_data'
+    file = f'{homepath}/{site}/{monthmap[month]}/{type}.csv'
+    data = pd.read_csv(file, comment='#')
+
+    ret_data = list((data[(data.loc[:,'year']==year) & (data.loc[:,'day']==day)].iloc[:,3:]).itertuples(name=None, index=False))
+
+    ret = {'index':list(data.columns[3:]),
+            'data': ret_data if ret_data else None
+            }
+    return ret
+    # return ret[0] if len(ret)==1 else None if len(ret)==0 else ret

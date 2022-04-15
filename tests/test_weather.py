@@ -37,3 +37,17 @@ class TestClass(unittest.TestCase):
         with self.assertRaises(ValueError):
             load_site('HAY',[1,2,15])
         delete_sites()
+
+    def test_get_data(self):
+        data = get_weather_data('HAY','SEFD_info_230',2009,8,45)
+        self.assertTrue(type(data) is dict)
+        self.assertTrue(data['data'] is None)
+
+        data = get_weather_data('HAY','SEFD_info_230',2009,8,16)
+        self.assertTrue(type(data['data']) is list)
+        self.assertTrue(len(data['data']) > 0)
+        self.assertTrue(type(data['data'][0]) is tuple)
+
+        data = get_weather_data('HAY','RH',9,8,16)
+        self.assertTrue(len(data['data']) > 0)
+        self.assertTrue(type(data['data'][0]) is tuple)
