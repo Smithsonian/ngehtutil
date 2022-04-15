@@ -4,6 +4,7 @@
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from ngehtutil.station_weather import get_weather_data
 
 _THE_STATIONS = None
 
@@ -148,6 +149,11 @@ class Station:
         # stn['lat'] = np.arcsin( stn['z']/np.sqrt(stn['x']**2+stn['y']**2+stn['z']**2) ) * 180./np.pi
         # stn['lon'] = np.arctan2( stn['y'], stn['x'] ) * 180.0/np.pi
 
+    def __str__(self):
+        return f'station {self.name}'
+
+    def __repr__(self):
+        return f'station {self.name}'
 
     def to_dict(self):
         ret = {}
@@ -286,11 +292,17 @@ class Station:
 
         return np.sqrt(area)
 
-    def __str__(self):
-        return f'station {self.name}'
 
-    def __repr__(self):
-        return f'station {self.name}'
+    def get_weather(self, type, year, month, day):
+        """ returns weather info of the given type """
+
+        return get_weather_data(self.name, type, year, month, day)
+
+##
+##
+## Functions for bringing in the known sites
+##
+##
 
 
 SITE_FILE_NAME = 'Telescope_Site_Matrix_20220218.xlsx'

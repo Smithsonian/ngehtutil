@@ -182,6 +182,29 @@ can be accessed through class methods.
     # any dishes, creates a single dish with diameter [diameter] and default parameters for other
     # dish attributes.
 
+    w = s.get_weather(type, year, month, day)
+    # returns information about weather at the site, derived from MERRA-2 data.
+    # type is one of the supported data, currently 'RH', 'SEFD_info_230', 'SEFD_info_345',
+    #   'mean_RH', 'mean_SEFD_info_230', 'mean_SEFD_info_345', 'mean_wind_speed', 'wind_speed'
+    #
+    # The returned weather data is a dict:
+    # d = {
+    #    'index': ['segment','tau','Tb'], # description of each field in the returned data
+    #    'data': [(0, 2.9, 271),          # list of data that meets the specification
+    #             (1, 2.5, 261),
+    #             ...
+    #            ]
+    #   }
+    #
+    # Note that accessing this data causes a bunch of files to be downloaded from a repository
+    # holding all the data: https://github.com/Smithsonian/ngeht-weather
+    #
+    # These files can be cleared from the system using a function:
+    #
+    # >> from ngehtutil.station_weather import delete_sites
+    # >> delete_sites()
+
+
 
 ### Attributes
 
