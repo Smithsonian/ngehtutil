@@ -8,13 +8,18 @@ from pathlib import Path
 
 class TestClass(unittest.TestCase):
     def test_fetch_files(self):
-        load_site('HAY',1)
+        delete_sites()
+        x = load_site('HAY',1)
+        self.assertTrue(x > 1)
         homepath=str(Path(ngehtutil.station_weather.__file__).parent) + '/weather_data'
         self.assertTrue(os.path.isdir(f'{homepath}/HAY/01Jan'))
         self.assertTrue(os.path.exists(f'{homepath}/HAY/01Jan/RH.csv'))
         self.assertFalse(os.path.isdir(f'{homepath}/HAY/02Feb'))
-        load_site('HAY',2)
+        x = load_site('HAY',[1,2])
+        self.assertTrue(x > 1)
         self.assertTrue(os.path.exists(f'{homepath}/HAY/02Feb/RH.csv'))
+        x = load_site('HAY',[1,2])
+        self.assertTrue(x == 0)
         delete_sites()
 
     def test_delete_files(self):

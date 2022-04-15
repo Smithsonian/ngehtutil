@@ -11,16 +11,6 @@ def load_site(sitename, months=None):
     """ Makes sure we have the data for a site for the given months, which is
         a list of month numbers 1-12, or None which means all. """
     
-    if not months:
-        months = list(range(1,13))
-    else:
-        if type(months) is int:
-            months=[months]
-        if not all(x >= 1 and x <= 12 for x in months):
-            raise ValueError('Months must be between 1 and 12')
-
-    print(f'loading weather data for site "{sitename}" for months {months}')
-    
     monthmap = {
         1: '01Jan',
         2: '02Feb',
@@ -48,8 +38,24 @@ def load_site(sitename, months=None):
                 'wind_speed.csv',
             ]
 
-    # make sure the target directory is here
     homepath=str(Path(__file__).parent) + '/weather_data'
+
+    if not months:
+        months = list(range(1,13))
+    else:
+        if type(months) is int:
+            months=[months]
+        if not all(x >= 1 and x <= 12 for x in months):
+            raise ValueError('Months must be between 1 and 12')
+
+    fetched = 0
+
+    months = \
+        [x for x in months if not os.path.exists(f'{homepath}/{sitename}/{monthmap[x]}/RH.csv')]
+    if len(months) == 0:
+        return 0 # nothing to load
+
+    # make sure the target directory is here
     if not os.path.isdir(homepath):
         # create the homepath
         os.mkdir(homepath)
@@ -65,6 +71,9 @@ def load_site(sitename, months=None):
             if r.status_code == 404:
                 raise ValueError('no such weather data file for {sitename} {monthmap[m]}')
             open(f'{homepath}/{sitename}/{monthmap[m]}/{f}','w').write(r.content.decode("utf-8"))
+            fetched = fetched + 1
+
+    return fetched
 
 
 def delete_sites():
