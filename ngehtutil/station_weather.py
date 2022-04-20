@@ -96,7 +96,6 @@ def get_weather_data(site, type, year, month, day):
     load_site(site, month)
 
     # get the data
-    homepath=str(Path(__file__).parent) + '/weather_data'
     file = f'{homepath}/{site}/{monthmap[month]}/{type}.csv'
     data = pd.read_csv(file, comment='#')
 
