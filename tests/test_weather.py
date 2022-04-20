@@ -19,13 +19,10 @@ class TestClass(unittest.TestCase):
         self.assertTrue(x > 1)
         self.assertTrue(os.path.exists(f'{homepath}/HAY/02Feb/RH.csv'))
         
-        # make sure that we don't reload files - except we do now because it's safer as the data
-        # isn't finalized. So even though we have downloaded the files already, make sure that
-        # when we request them again, we still download them.
+        # make sure that we don't reload files
         x = load_site('HAY',[1,2])
-        self.assertTrue(x > 0)
-        # self.assertTrue(x == 0) # for the future, makes sure we did *not* download anything
-
+        self.assertTrue(x == 0)
+        
         delete_sites()
 
     def test_delete_files(self):
