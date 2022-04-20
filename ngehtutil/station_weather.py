@@ -1,6 +1,6 @@
-#
-# Code to manage site weather derived from MERRA-2 data
-#
+"""
+Code to manage site weather derived from MERRA-2 data
+"""
 
 import requests
 import os
@@ -96,11 +96,11 @@ def get_weather_data(site, type, year, month, day):
     load_site(site, month)
 
     # get the data
-    homepath=str(Path(__file__).parent) + '/weather_data'
     file = f'{homepath}/{site}/{monthmap[month]}/{type}.csv'
     data = pd.read_csv(file, comment='#')
 
-    ret_data = list((data[(data.loc[:,'year']==year) & (data.loc[:,'day']==day)].iloc[:,3:]).itertuples(name=None, index=False))
+    ret_data = list((data[(data.loc[:,'year']==year) & \
+        (data.loc[:,'day']==day)].iloc[:,3:]).itertuples(name=None, index=False))
 
     ret = {'index':list(data.columns[3:]),
             'data': ret_data if ret_data else None
