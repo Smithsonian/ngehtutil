@@ -99,7 +99,8 @@ def get_weather_data(site, type, year, month, day):
     file = f'{homepath}/{site}/{monthmap[month]}/{type}.csv'
     data = pd.read_csv(file, comment='#')
 
-    ret_data = list((data[(data.loc[:,'year']==year) & (data.loc[:,'day']==day)].iloc[:,3:]).itertuples(name=None, index=False))
+    ret_data = list((data[(data.loc[:,'year']==year) & \
+        (data.loc[:,'day']==day)].iloc[:,3:]).itertuples(name=None, index=False))
 
     ret = {'index':list(data.columns[3:]),
             'data': ret_data if ret_data else None
