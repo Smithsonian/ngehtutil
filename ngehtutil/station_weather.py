@@ -52,10 +52,13 @@ def load_site(sitename, months=None):
 
     fetched = 0
 
-    months = \
-        [x for x in months if not os.path.exists(f'{homepath}/{sitename}/{monthmap[x]}/RH.csv')]
-    if len(months) == 0:
-        return 0 # nothing to load
+    # Uncomment the following code to skip download if data has already been loaded. Because
+    # the data is in flux as of 2022-04-20, best to just always download the latest
+    #
+    # months = \
+    #     [x for x in months if not os.path.exists(f'{homepath}/{sitename}/{monthmap[x]}/RH.csv')]
+    # if len(months) == 0:
+    #     return 0 # nothing to load
 
     # make sure the target directory is here
     if not os.path.isdir(homepath):
