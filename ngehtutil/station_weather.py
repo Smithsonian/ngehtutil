@@ -1,6 +1,6 @@
-#
-# Code to manage site weather derived from MERRA-2 data
-#
+"""
+Code to manage site weather derived from MERRA-2 data
+"""
 
 import requests
 import os
