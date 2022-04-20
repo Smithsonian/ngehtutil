@@ -82,7 +82,6 @@ def load_site(sitename, months=None):
 
 
 def delete_sites():
-    homepath=str(Path(__file__).parent) + '/weather_data'
     try:
         shutil.rmtree(homepath)
     except FileNotFoundError:
