@@ -82,6 +82,7 @@ def load_site(sitename, months=None):
 
 
 def delete_sites():
+    """ get rid of any downloaded weather files """
     try:
         shutil.rmtree(homepath)
     except FileNotFoundError:
