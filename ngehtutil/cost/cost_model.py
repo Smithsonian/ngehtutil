@@ -246,10 +246,12 @@ def calculate_capital_costs(cost_config, sites):
         dish_size = cost_config.dish_size
         antenna_constant = \
             const['site_development_values_table'].at['antenna_cost_constant','Value']
-        antenna_factor = const['site_development_values_table'].at['antenna_cost_factor','Value']
+        antenna_factor1 = const['site_development_values_table'].at['antenna_cost_factor1','Value']
+        antenna_factor2 = const['site_development_values_table'].at['antenna_cost_factor2','Value']
         antenna_exp = const['site_development_values_table'].at['antenna_cost_exponent','Value']
         single_antenna_cost = antenna_constant + \
-                    (antenna_factor * pow(dish_size, antenna_exp))
+                    (antenna_factor1 * dish_size) + \
+                    (antenna_factor2 * pow(dish_size, antenna_exp))
 
         if site.dishes is None:
             site.set_diameter(dish_size) # the site was under-defined, so give it a dish
