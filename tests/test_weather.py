@@ -51,6 +51,7 @@ class TestClass(unittest.TestCase):
         self.assertTrue(len(data['data']) > 0)
         self.assertTrue(type(data['data'][0]) is tuple)
 
-        data = get_weather_data('HAY','RH',9,8,16)
+        data = get_weather_data('HAY','RH',2009,8,16)
         self.assertTrue(len(data['data']) > 0)
         self.assertTrue(type(data['data'][0]) is tuple)
+        delete_sites()
