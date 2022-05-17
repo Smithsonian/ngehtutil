@@ -62,7 +62,7 @@ def calc_metrics(construction_limit=999e9, ops_limit=999e9):
         num, c, o = number_for_diameter(diameter = d, \
            construction_limit=construction_limit, ops_limit = ops_limit )
         data.loc[d,'number'] = num
-        sens = num * d * d
+        sens = d * d
         data.loc[d,'sensitivity'] = sens
         fid = num * num
         data.loc[d,'fidelity'] = fid
