@@ -244,7 +244,7 @@ can be accessed through class methods.
 
 ---
 
-## Dish: a since radio antenna at a site
+## Dish: a single radio antenna at a site
 
 Class to represent a Dish. A Station has a list of Dish objects.
 
