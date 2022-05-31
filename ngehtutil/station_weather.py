@@ -1,5 +1,12 @@
 """
+Copyright (c) 2022 Center for Astrophysics | Harvard & Smithsonian
+
+This software is licensed for use as described in the LICENSE file in
+the root directory of this distribution.
+
 Code to manage site weather derived from MERRA-2 data
+
+Originator: Aaron Oppenheimer March 2020
 """
 
 import requests

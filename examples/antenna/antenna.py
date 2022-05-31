@@ -1,3 +1,14 @@
+"""
+Copyright (c) 2022 Center for Astrophysics | Harvard & Smithsonian
+
+This software is licensed for use as described in the LICENSE file in
+the root directory of this distribution.
+
+Code that exercises the utilities library. Generates information about how many dishes can be
+built for fixed capital and operational costs to optimize a couple of performance parameters.
+
+Originator: Aaron Oppenheimer March 2020
+"""
 from ngehtutil import Array, Target, Source, Schedule, Campaign, Program, Station
 import random
 import pandas as pd

@@ -1,7 +1,13 @@
-# CostConfig object for ngehtutil cost module
-#
-# Aaron Oppenheimer
-# 
+"""
+Copyright (c) 2022 Center for Astrophysics | Harvard & Smithsonian
+
+This software is licensed for use as described in the LICENSE file in
+the root directory of this distribution.
+
+Cost model code
+
+Originator: Aaron Oppenheimer March 2020
+"""
 
 class CostConfig:
     dish_size = 6 # Size for new dishes - must be 4, 6, 8, 10
