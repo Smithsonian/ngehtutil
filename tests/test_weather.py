@@ -1,4 +1,13 @@
-# test weather
+"""
+Copyright (c) 2022 Center for Astrophysics | Harvard & Smithsonian
+
+This software is licensed for use as described in the LICENSE file in
+the root directory of this distribution.
+
+Testing the Weather modeling code
+
+Originator: Aaron Oppenheimer March 2020
+"""
 from multiprocessing.sharedctypes import Value
 import ngehtutil.station_weather
 from ngehtutil.station_weather import *

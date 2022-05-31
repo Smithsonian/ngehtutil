@@ -1,5 +1,12 @@
 """
-Manage things to do with targets
+Copyright (c) 2022 Center for Astrophysics | Harvard & Smithsonian
+
+This software is licensed for use as described in the LICENSE file in
+the root directory of this distribution.
+
+Code to manage targets
+
+Originator: Aaron Oppenheimer March 2020
 """
 from pathlib import Path
 import csv

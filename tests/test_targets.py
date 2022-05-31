@@ -1,4 +1,13 @@
-# test targets
+"""
+Copyright (c) 2022 Center for Astrophysics | Harvard & Smithsonian
+
+This software is licensed for use as described in the LICENSE file in
+the root directory of this distribution.
+
+Testing the Target model
+
+Originator: Aaron Oppenheimer March 2020
+"""
 from ngehtutil.target import Target
 import unittest
 

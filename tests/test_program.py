@@ -1,4 +1,13 @@
-# test programs
+"""
+Copyright (c) 2022 Center for Astrophysics | Harvard & Smithsonian
+
+This software is licensed for use as described in the LICENSE file in
+the root directory of this distribution.
+
+Testing the program model
+
+Originator: Aaron Oppenheimer March 2020
+"""
 from ngehtutil import *
 import unittest
 import copy

@@ -1,4 +1,13 @@
-# test costs
+"""
+Copyright (c) 2022 Center for Astrophysics | Harvard & Smithsonian
+
+This software is licensed for use as described in the LICENSE file in
+the root directory of this distribution.
+
+Testing the cost model
+
+Originator: Aaron Oppenheimer March 2020
+"""
 import unittest
 from pandas import Series
 from ngehtutil.cost import calculate_costs

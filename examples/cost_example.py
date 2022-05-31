@@ -1,3 +1,13 @@
+"""
+Copyright (c) 2022 Center for Astrophysics | Harvard & Smithsonian
+
+This software is licensed for use as described in the LICENSE file in
+the root directory of this distribution.
+
+Code to demonstrate use of the cost model
+
+Originator: Aaron Oppenheimer March 2020
+"""
 from ngehtutil.cost import calculate_costs, CostConfig
 from ngehtutil import *
 
