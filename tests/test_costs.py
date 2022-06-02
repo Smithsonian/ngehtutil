@@ -59,12 +59,12 @@ class CostTestClass(unittest.TestCase):
         array0 = Array('test',[])
         costs0 = calculate_costs(config, array0.stations())
 
-        stn = Station.from_name('OVRO')
-        array1 = Array('test',[stn]) # one OVRO
+        stn = Station.from_name('LOS')
+        array1 = Array('test',[stn]) # one LOS
         costs1 = calculate_costs(config, array1.stations())
 
         multi = 10
-        array2 = Array('test',[stn]*multi) # multiple OVROs
+        array2 = Array('test',[stn]*multi) # multiple LOSs
         costs2 = calculate_costs(config, array2.stations())
 
         base_cost = costs0['TOTAL CAPEX'] + costs1['Design NRE']
@@ -84,7 +84,7 @@ class CostTestClass(unittest.TestCase):
         stn1 = Station.from_name('HAY') # pick one that already has a dish
         cost1 = calculate_costs(config, [stn1])
 
-        stn1.dishes = [] # get rid of the dish
+        stn1.dishes = None # get rid of the dish
         cost2 = calculate_costs(config, [stn1])
 
-        self.assertTrue(cost1['TOTAL CAPEX'] > cost2['TOTAL CAPEX'])
+        self.assertTrue(cost1['TOTAL CAPEX'] < cost2['TOTAL CAPEX'])

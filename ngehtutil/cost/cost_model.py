@@ -258,7 +258,7 @@ def calculate_capital_costs(cost_config, sites):
                         (antenna_factor1 * dish_size) + \
                         (antenna_factor2 * pow(dish_size, antenna_exp))
 
-            site.set_diameter(dish_size) # the site was under-defined, so give it a dish
+            # site.set_diameter(dish_size) # the site was under-defined, so give it a dish
 
             construction_cost = single_antenna_cost
 
@@ -283,8 +283,9 @@ def calculate_capital_costs(cost_config, sites):
         correlator_cost_factor = const['site_development_values_table']\
             .at['correlator_cost_factor', 'Value']
         maser_cost = const['site_development_values_table'].at['maser_cost', 'Value']
-        backend_cost = (receiver_cost_factor * len(site.dishes)) + \
-            (correlator_cost_factor * pow(len(site.dishes), 2)) + \
+        num_dishes = len(site.dishes) if site.dishes else 1
+        backend_cost = (receiver_cost_factor * num_dishes) + \
+            (correlator_cost_factor * pow(num_dishes, 2)) + \
             maser_cost
 
         site_costs.at['Backend costs', siteindex] = backend_cost
