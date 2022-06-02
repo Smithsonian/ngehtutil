@@ -229,7 +229,8 @@ def calculate_capital_costs(cost_config, sites):
 
         # For new sites we have to worry about costs to acquire, build, commission
 
-        if not site.eht:
+        if site.dishes is None: # this is a new site
+
             # Aquisition Costs
             site_aquisition_baseline = const['site_development_values_table']\
                 .at['site_acquisition_and_leasing', 'Value']
@@ -244,25 +245,22 @@ def calculate_capital_costs(cost_config, sites):
             site_costs.at['Infrastructure',
                             siteindex] = infrastructure_baseline * infrascruture_scaling_factor
 
-        # Antenna Construction
-        #
-        # implements the cost equation as C + kd^e
-        dish_size = cost_config.dish_size
-        antenna_constant = \
-            const['site_development_values_table'].at['antenna_cost_constant','Value']
-        antenna_factor1 = const['site_development_values_table'].at['antenna_cost_factor1','Value']
-        antenna_factor2 = const['site_development_values_table'].at['antenna_cost_factor2','Value']
-        antenna_exp = const['site_development_values_table'].at['antenna_cost_exponent','Value']
-        single_antenna_cost = antenna_constant + \
-                    (antenna_factor1 * dish_size) + \
-                    (antenna_factor2 * pow(dish_size, antenna_exp))
+            # Antenna Construction
+            #
+            # implements the cost equation as C + kd^e
+            dish_size = cost_config.dish_size
+            antenna_constant = \
+                const['site_development_values_table'].at['antenna_cost_constant','Value']
+            antenna_factor1 = const['site_development_values_table'].at['antenna_cost_factor1','Value']
+            antenna_factor2 = const['site_development_values_table'].at['antenna_cost_factor2','Value']
+            antenna_exp = const['site_development_values_table'].at['antenna_cost_exponent','Value']
+            single_antenna_cost = antenna_constant + \
+                        (antenna_factor1 * dish_size) + \
+                        (antenna_factor2 * pow(dish_size, antenna_exp))
 
-        if site.dishes is None:
-            site.set_diameter(dish_size) # the site was under-defined, so give it a dish
-        number_of_antennas = len(site.dishes)
+            # site.set_diameter(dish_size) # the site was under-defined, so give it a dish
 
-        if not site.eht:
-            construction_cost = single_antenna_cost * number_of_antennas
+            construction_cost = single_antenna_cost
 
             construction_cost = construction_cost * \
                 const['site_development_values_table']\
@@ -271,8 +269,9 @@ def calculate_capital_costs(cost_config, sites):
             site_costs.at['Antenna construction', siteindex] = construction_cost
         else:
             # for existing sites, don't need to build dish
+            site_costs.at['Site acquisition / leasing', siteindex] = 0
+            site_costs.at['Infrastructure', siteindex] = 0
             site_costs.at['Antenna construction', siteindex] = 0
-
 
         # Backend - receiver, maser, correlator
         receiver_cost_factor = const['site_development_values_table']\
@@ -284,8 +283,9 @@ def calculate_capital_costs(cost_config, sites):
         correlator_cost_factor = const['site_development_values_table']\
             .at['correlator_cost_factor', 'Value']
         maser_cost = const['site_development_values_table'].at['maser_cost', 'Value']
-        backend_cost = (receiver_cost_factor * number_of_antennas) + \
-            (correlator_cost_factor * pow(number_of_antennas, 2)) + \
+        num_dishes = len(site.dishes) if site.dishes else 1
+        backend_cost = (receiver_cost_factor * num_dishes) + \
+            (correlator_cost_factor * pow(num_dishes, 2)) + \
             maser_cost
 
         site_costs.at['Backend costs', siteindex] = backend_cost
