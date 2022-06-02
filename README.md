@@ -13,7 +13,7 @@ loaded, the database of these known items is loaded and ready for use.
 The library is installed using pip, and it is recommended to use a virtual environment. The library
 is installed directly from github. To install the latest plus its dependencies:
 
-    pip install git+https://github.com/ngeht/ngeht-util.git
+    pip install git+https://github.com/Smithsonian/ngeht-util.git
 
 ## Architecture
 
