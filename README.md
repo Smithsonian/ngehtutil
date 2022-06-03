@@ -414,3 +414,22 @@ Class to hold configuration information used by the cost model.
     observations_per_year = 1 # will be defined by Schedule when calling prg.calculate_costs
     days_per_observation = 3 # will be defined by Schedule when calling prg.calculate_costs
     hours_per_observation = 30 # will be defined by Schedule when calling prg.calculate_costs
+
+---
+
+## Cost module convenience functions
+
+The cost module has a few functions to calculate costs:
+
+    costs = calculate_costs(cost_config, stations)
+    # returns a dict of cost items including capital, operating, data handling, and average costs
+
+    total, new = calculate_capital_costs(cost_config, stations)
+    # returns a pandas series containing only the capital costs for stations. Total is for all of
+    # the stations; new only includes stations for which a dish must be built.
+    #
+    # to get a sum of the costs, use sum=total[1:].sum()
+
+    total, new = calculate_operating_costs(cost_config, stations)
+    # returns a pandas series containing only the operating costs for stations. Total is for all of
+    # the stations; new only includes stations for which a dish must be built.
