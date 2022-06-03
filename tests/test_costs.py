@@ -10,12 +10,23 @@ Originator: Aaron Oppenheimer March 2020
 """
 import unittest
 from pandas import Series
-from ngehtutil.cost import calculate_costs
+from ngehtutil.cost import calculate_costs, get_cost_constants
 from ngehtutil.cost import CostConfig
 from ngehtutil.cost.cost_model import *
 from ngehtutil import *
 
 class CostTestClass(unittest.TestCase):
+
+    def test_costmodel_constants(self):
+        a = get_cost_constants()
+        b = a
+        c = get_cost_constants()
+        self.assertIs(a, b)
+        self.assertIsNot(a,c)
+
+        t = list(a.keys())[0]
+        self.assertIs(a[t],b[t])
+        self.assertIsNot(a[t],c[t])
 
     def test_costmodel_stationobjects(self):
         config = CostConfig()
@@ -26,7 +37,8 @@ class CostTestClass(unittest.TestCase):
     def test_capital_costs(self):
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
-        total_site_costs, new_site_costs = calculate_capital_costs(config, array.stations())
+        total_site_costs, new_site_costs = calculate_capital_costs(config, array.stations(), \
+            get_cost_constants())
         all_site = sum([x for x in total_site_costs.to_dict().values() if not type(x) is str])
         all_new = sum([x for x in new_site_costs.to_dict().values() if not type(x) is str])
         self.assertTrue(all_site >= all_new)
@@ -34,7 +46,8 @@ class CostTestClass(unittest.TestCase):
     def test_operations_costs(self):
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
-        total_site_costs, new_site_costs = calculate_operations_costs(config, array.stations())
+        total_site_costs, new_site_costs = calculate_operations_costs(config, array.stations(), \
+            get_cost_constants())
         all_site = sum([x for x in total_site_costs.to_dict().values() if not type(x) is str])
         all_new = sum([x for x in new_site_costs.to_dict().values() if not type(x) is str])
         self.assertTrue(all_site >= all_new)
@@ -45,7 +58,8 @@ class CostTestClass(unittest.TestCase):
         """
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
-        data_costs = calculate_data_costs(config, len(array.stations()), 1, 10)
+        data_costs = calculate_data_costs(config, len(array.stations()), 1, 10, \
+            get_cost_constants())
         self.assertEqual(type(data_costs.to_dict()), dict)
 
     def test_station_copies(self):

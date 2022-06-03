@@ -46,9 +46,19 @@ def read_constants(infile_name=None):
 
     return CONSTANTS_TABLES
 
-read_constants()
+def get_cost_constants():
+    """
+    for purposes of processing on a cluster, we need a deep copy of the constants that
+    can be passed to the cost calculation functions instead of using the global one which
+    we think is causing headaches.
+    """
+    if CONSTANTS_TABLES is None:
+        read_constants()
+    new_const = {k:v.copy() for k,v in CONSTANTS_TABLES.items()}
+    return new_const
 
-def calculate_costs(cost_config, sites, const_filename=None):
+
+def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None):
     """
     Perform cost calculations for an array of ngEGT sites
 
@@ -63,7 +73,10 @@ def calculate_costs(cost_config, sites, const_filename=None):
     dataframe of cost information
     """
     # Read the cost constant spreadsheet
-    const = read_constants(const_filename)
+    if cost_constants:
+        const = cost_constants
+    else:
+        const = read_constants(const_filename)
 
     # const = update_constants_from_config(const, cost_config)
 
@@ -85,17 +98,18 @@ def calculate_costs(cost_config, sites, const_filename=None):
     array_stats['Total Sites Count'] = total_sites_count
 
     array_stats = pd.Series(array_stats)
-    array_stats = pd.concat([array_stats,calculate_operating_mode(cost_config, sites)])
+    array_stats = pd.concat([array_stats,calculate_operating_mode(cost_config, sites, const)])
 
-    total_site_costs, new_site_costs = calculate_capital_costs(cost_config, sites)
+    total_site_costs, new_site_costs = calculate_capital_costs(cost_config, sites, const)
 
-    t, n = calculate_operations_costs(cost_config, sites)
+    t, n = calculate_operations_costs(cost_config, sites, const)
     total_site_costs = pd.concat([total_site_costs, t])
     new_site_costs = pd.concat([new_site_costs, n])
 
     data_management_costs = calculate_data_costs(cost_config, total_sites_count, \
         array_stats["Data Per Year - Full Array (PB)"], \
-            cost_config.observations_per_year*cost_config.days_per_observation )
+            cost_config.observations_per_year*cost_config.days_per_observation, \
+                const )
 
     #
     # work out the average costs for new sites
@@ -155,9 +169,7 @@ def calculate_costs(cost_config, sites, const_filename=None):
     ## OPERATION MODE CALCULATIONS
     ##
 
-def calculate_operating_mode(cost_config, sites):
-    global CONSTANTS_TABLES
-    const = CONSTANTS_TABLES
+def calculate_operating_mode(cost_config, sites, const):
     array_stats = {}
 
     # calculate stuff about operation mode
@@ -190,9 +202,7 @@ def calculate_operating_mode(cost_config, sites):
 ###
 ### CAPITAL COSTS FOR ANTENNAS
 ###
-def calculate_capital_costs(cost_config, sites):
-    global CONSTANTS_TABLES
-    const = CONSTANTS_TABLES
+def calculate_capital_costs(cost_config, sites, const):
 
     #
     #  calculate costs based on the array configuration - NRE, construction costs, operating costs
@@ -313,13 +323,11 @@ def calculate_capital_costs(cost_config, sites):
 ###
 ### Antenna Operations Costs Per Observation Year, which is primarily about staffing
 ###
-def calculate_operations_costs(cost_config, sites):
+def calculate_operations_costs(cost_config, sites, const):
     """
     Calculate the cost of operating the sites for a year, which is mostly about staffing.
     Uses both per-obeserving-night plus costs of some full-time staff.
     """
-    global CONSTANTS_TABLES
-    const = CONSTANTS_TABLES
     array_stats = {}
 
     obs_per_year = cost_config.observations_per_year
@@ -450,9 +458,8 @@ def calculate_operations_costs(cost_config, sites):
 ##
 ## Data Management Costs
 ##
-def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting_days_per_year):
-    global CONSTANTS_TABLES
-    const = CONSTANTS_TABLES
+def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting_days_per_year, \
+    const):
 
     #
     # calculate data management costs

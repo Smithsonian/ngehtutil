@@ -421,15 +421,18 @@ Class to hold configuration information used by the cost model.
 
 The cost module has a few functions to calculate costs:
 
-    costs = calculate_costs(cost_config, stations)
+    costs = calculate_costs(cost_config, stations, cost_constants=None)
     # returns a dict of cost items including capital, operating, data handling, and average costs
+    #
+    # cost_constants can be left None in which case the module will use constants stored in-memory
+    # if you need a deep copy (for instance, for cluster computing) use get_cost_constants()
 
-    total, new = calculate_capital_costs(cost_config, stations)
+    total, new = calculate_capital_costs(cost_config, stations, cost_constants)
     # returns a pandas series containing only the capital costs for stations. Total is for all of
     # the stations; new only includes stations for which a dish must be built.
     #
     # to get a sum of the costs, use sum=total[1:].sum()
 
-    total, new = calculate_operating_costs(cost_config, stations)
+    total, new = calculate_operating_costs(cost_config, stations, cost_constants)
     # returns a pandas series containing only the operating costs for stations. Total is for all of
     # the stations; new only includes stations for which a dish must be built.

@@ -50,11 +50,14 @@ def doit2():
 
 def dishtest():
     config = CostConfig()
-    stat = Station.from_name('KILI')
+    stat = Station.from_name('FAIR')
     stat.dishes = None
+    # constants = get_cost_constants()
+    constants=None
+    print('woo!')
     for i in range(6,11):
         config.dish_size = i
-        costs = calculate_costs(config, [stat])
+        costs = calculate_costs(config, [stat], constants)
         # print(str(i)+' meters:',costs["TOTAL CAPEX"])
         for k,v in costs.items():
             print(f'{k}: {v}')
@@ -77,5 +80,5 @@ def main():
     test()
 
 if __name__ == '__main__':
-    main()
-    # dishtest()
+    # main()
+    dishtest()
