@@ -16,8 +16,13 @@ from ngehtutil.cost.cost_model import *
 from ngehtutil import *
 
 class CostTestClass(unittest.TestCase):
+    """ A set of tests for the cost module """
 
     def test_costmodel_constants(self):
+        """
+        In some circumstances we want a copy of the cost constants dictionary. Make sure
+        we get a deep copy, not just a reference to the one loaded by the module.
+        """
         a = get_cost_constants()
         b = a
         c = get_cost_constants()

@@ -8,8 +8,8 @@ Code to demonstrate use of the cost model
 
 Originator: Aaron Oppenheimer March 2020
 """
-from ngehtutil.cost import calculate_costs, calculate_capital_costs, calculate_operations_costs, CostConfig
-from ngehtutil import *
+from ngehtutil.cost import *
+from ngehtutil import Array, Station
 import time
 
 
@@ -35,8 +35,7 @@ def doit():
         hours_per_observation=60*8
     )
     a = Array.from_name('ngEHT Ref. Array 1.1A + EHT2022')
-    costs, nscosts = calculate_capital_costs(config,a.stations())
-    pass
+    costs, nscosts = calculate_capital_costs(config, a.stations(), get_cost_constants())
 
 def doit2():
     config = CostConfig(
@@ -45,23 +44,18 @@ def doit2():
         hours_per_observation=60*8
     )
     a = Array.from_name('ngEHT Ref. Array 1.1A + EHT2022')
-    t, n = calculate_operations_costs(config, a.stations(), \
-        config.observations_per_year, config.days_per_observation)
+    t, n = calculate_operations_costs(config, a.stations(), get_cost_constants())
 
 def dishtest():
     config = CostConfig()
-    stat = Station.from_name('FAIR')
+    stat = Station.from_name('HAY')
     stat.dishes = None
-    # constants = get_cost_constants()
-    constants=None
-    print('woo!')
     for i in range(6,11):
         config.dish_size = i
-        costs = calculate_costs(config, [stat], constants)
-        # print(str(i)+' meters:',costs["TOTAL CAPEX"])
-        for k,v in costs.items():
-            print(f'{k}: {v}')
-        return
+        costs = calculate_costs(config, [stat])
+        print(str(i)+' meters:',costs["TOTAL CAPEX"])
+        # for k,v in costs.items():
+        #     print(f'{k}: {v}')
 
 def main():
     reps = 1000
@@ -80,5 +74,5 @@ def main():
     test()
 
 if __name__ == '__main__':
-    # main()
+    main()
     dishtest()
