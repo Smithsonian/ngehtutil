@@ -8,7 +8,7 @@ Code to demonstrate use of the cost model
 
 Originator: Aaron Oppenheimer March 2020
 """
-from ngehtutil.cost import calculate_costs, CostConfig
+from ngehtutil.cost import calculate_costs, calculate_capital_costs, calculate_operations_costs, CostConfig
 from ngehtutil import *
 import time
 
@@ -35,7 +35,29 @@ def doit():
         hours_per_observation=60*8
     )
     a = Array.from_name('ngEHT Ref. Array 1.1A + EHT2022')
-    costs = calculate_costs(config,a.stations())
+    costs = calculate_capital_costs(config,a.stations())
+
+def doit2():
+    config = CostConfig(
+        observations_per_year=1,
+        days_per_observation=60,
+        hours_per_observation=60*8
+    )
+    a = Array.from_name('ngEHT Ref. Array 1.1A + EHT2022')
+    t, n = calculate_operations_costs(config, a.stations(), \
+        config.observations_per_year, config.days_per_observation)
+
+def dishtest():
+    config = CostConfig()
+    stat = Station.from_name('KILI')
+    stat.dishes = None
+    for i in range(6,11):
+        config.dish_size = i
+        costs = calculate_costs(config, [stat])
+        # print(str(i)+' meters:',costs["TOTAL CAPEX"])
+        for k,v in costs.items():
+            print(f'{k}: {v}')
+        return
 
 def main():
     reps = 1000
@@ -43,9 +65,16 @@ def main():
     for i in range(0,reps):
         doit()
     t2 = time.time()
-    print(f'time for cost calc: {(t2-t1)/reps}')
+    print(f'time for capital cost calc: {(t2-t1)/reps}')
+
+    t1 = time.time()
+    for i in range(0,reps):
+        doit2()
+    t2 = time.time()
+    print(f'time for operations cost calc: {(t2-t1)/reps}')
 
     test()
 
 if __name__ == '__main__':
-    main()
+    # main()
+    dishtest()

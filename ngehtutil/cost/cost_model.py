@@ -89,8 +89,7 @@ def calculate_costs(cost_config, sites, const_filename=None):
 
     total_site_costs, new_site_costs = calculate_capital_costs(cost_config, sites)
 
-    t, n = calculate_operations_costs(cost_config, sites, \
-        cost_config.observations_per_year, cost_config.days_per_observation)
+    t, n = calculate_operations_costs(cost_config, sites)
     total_site_costs = pd.concat([total_site_costs, t])
     new_site_costs = pd.concat([new_site_costs, n])
 
@@ -314,7 +313,7 @@ def calculate_capital_costs(cost_config, sites):
 ###
 ### Antenna Operations Costs Per Observation Year, which is primarily about staffing
 ###
-def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_year):
+def calculate_operations_costs(cost_config, sites):
     """
     Calculate the cost of operating the sites for a year, which is mostly about staffing.
     Uses both per-obeserving-night plus costs of some full-time staff.
@@ -322,6 +321,9 @@ def calculate_operations_costs(cost_config, sites, obs_per_year, obs_days_per_ye
     global CONSTANTS_TABLES
     const = CONSTANTS_TABLES
     array_stats = {}
+
+    obs_per_year = cost_config.observations_per_year
+    obs_days_per_year = cost_config.days_per_observation
 
     site_costs = pd.DataFrame(index=['Antenna operations'])
 
