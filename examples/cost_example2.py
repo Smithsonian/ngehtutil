@@ -35,7 +35,8 @@ def doit():
         hours_per_observation=60*8
     )
     a = Array.from_name('ngEHT Ref. Array 1.1A + EHT2022')
-    costs = calculate_capital_costs(config,a.stations())
+    costs, nscosts = calculate_capital_costs(config,a.stations())
+    pass
 
 def doit2():
     config = CostConfig(
