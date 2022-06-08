@@ -215,19 +215,29 @@ def calculate_capital_costs(cost_config, sites, const):
     total_site_costs['SITE COSTS'] = ''
     new_site_costs['NEW SITE COSTS'] = ''
 
+    # Antenna Construction
+    #
+    # implements the cost equation as C + kd^e
+    dish_size = cost_config.dish_size
+    antenna_constant = \
+        const['site_development_values_table'].at['antenna_cost_constant','Value']
+    antenna_factor1 = const['site_development_values_table'].at['antenna_cost_factor1','Value']
+    antenna_factor2 = const['site_development_values_table'].at['antenna_cost_factor2','Value']
+    antenna_exp = const['site_development_values_table'].at['antenna_cost_exponent','Value']
+    single_antenna_cost = antenna_constant + \
+                (antenna_factor1 * dish_size) + \
+                (antenna_factor2 * pow(dish_size, antenna_exp))
+
     # calculate the total NRE costs for designing new stations
     total_new_site_nre = 0
     if len(sites):
         new_dish_size = cost_config.dish_size
-        dish_cost_multiplier = new_dish_size / 4.0 # not sure where this is from
         autonomy_multiplier = const['autonomy_mode_values_table'].loc['Manual'][
             'complexity_factor']
         nre_costs = const['site_development_values_table'].at['antenna_development_nre','Value'] * \
-                        dish_cost_multiplier * autonomy_multiplier
-        prototype_costs = const['site_development_values_table'].at[
-            'antenna_prototype', 'Value'] * dish_cost_multiplier * autonomy_multiplier
+                        single_antenna_cost * autonomy_multiplier
 
-        total_new_site_nre = nre_costs + prototype_costs
+        total_new_site_nre = nre_costs
     total_site_costs['Design NRE'] = total_new_site_nre
     new_site_costs['Design NRE'] = total_new_site_nre
 
@@ -254,18 +264,6 @@ def calculate_capital_costs(cost_config, sites, const):
             site_costs.at['Infrastructure',
                             siteindex] = infrastructure_baseline * infrascruture_scaling_factor
 
-            # Antenna Construction
-            #
-            # implements the cost equation as C + kd^e
-            dish_size = cost_config.dish_size
-            antenna_constant = \
-                const['site_development_values_table'].at['antenna_cost_constant','Value']
-            antenna_factor1 = const['site_development_values_table'].at['antenna_cost_factor1','Value']
-            antenna_factor2 = const['site_development_values_table'].at['antenna_cost_factor2','Value']
-            antenna_exp = const['site_development_values_table'].at['antenna_cost_exponent','Value']
-            single_antenna_cost = antenna_constant + \
-                        (antenna_factor1 * dish_size) + \
-                        (antenna_factor2 * pow(dish_size, antenna_exp))
 
             # site.set_diameter(dish_size) # the site was under-defined, so give it a dish
 
@@ -319,7 +317,7 @@ def calculate_capital_costs(cost_config, sites, const):
 
     total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
     
-    new_sites = [i for i,x in enumerate(sites) if not x.eht]
+    new_sites = [i for i,x in enumerate(sites) if x.dishes is None]
     new_site_costs = \
         pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
     return total_site_costs, new_site_costs
