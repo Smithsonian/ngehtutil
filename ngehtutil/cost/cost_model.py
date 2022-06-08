@@ -91,7 +91,7 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
 
     total_sites_count = len(sites)
     # new_sites = sites.loc[:,sites.loc['eht']==0].to_dict()
-    new_sites = [x for x in sites if not x.eht]
+    new_sites = [x for x in sites if x.dishes is None]
     new_sites_count = len(new_sites)
     array_stats['New Sites Count'] = new_sites_count
     array_stats['EHT Sites Count'] = total_sites_count - new_sites_count
@@ -302,7 +302,7 @@ def calculate_capital_costs(cost_config, sites, const):
 
 
         # Antenna Commissioning
-        if not site.eht:
+        if site.dishes is None:
             if site.existing_infrastructure == 'Complete':
                 # cost to commission existing site
                 commissioning_cost = const['site_development_values_table']\
@@ -441,7 +441,7 @@ def calculate_operations_costs(cost_config, sites, const):
 
     total_site_costs = site_costs.sum(axis=1)
     
-    new_sites = [i for i,x in enumerate(sites) if not x.eht]
+    new_sites = [i for i,x in enumerate(sites) if x.dishes is None]
     new_site_costs = \
         site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)
 
