@@ -414,6 +414,7 @@ Class to hold configuration information used by the cost model.
     observations_per_year = 1 # will be defined by Schedule when calling prg.calculate_costs
     days_per_observation = 3 # will be defined by Schedule when calling prg.calculate_costs
     hours_per_observation = 30 # will be defined by Schedule when calling prg.calculate_costs
+    no_upgrade = [] # sites that should not get an upgraded receiver or back end, by name
 
 ---
 

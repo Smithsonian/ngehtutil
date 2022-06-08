@@ -23,6 +23,7 @@ class CostConfig:
     observations_per_year = 1
     days_per_observation = 3
     hours_per_observation = 30
+    no_upgrade = [] # sites to skip when calculating costs for receiver, backend, etc.
 
     def __init__(self, **kwargs):
         """

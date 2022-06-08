@@ -283,21 +283,25 @@ def calculate_capital_costs(cost_config, sites, const):
             site_costs.at['Antenna construction', siteindex] = 0
 
         # Backend - receiver, maser, correlator
-        receiver_cost_factor = const['site_development_values_table']\
-            .at['receiver_cost_factor', 'Value']
-        if cost_config.recording_frequencies > 2:
-            triband_cost_multiplier = const['site_development_values_table']\
-                .at['triband_cost_multiplier', 'Value']
-            receiver_cost_factor = receiver_cost_factor * triband_cost_multiplier
-        correlator_cost_factor = const['site_development_values_table']\
-            .at['correlator_cost_factor', 'Value']
-        maser_cost = const['site_development_values_table'].at['maser_cost', 'Value']
-        num_dishes = len(site.dishes) if site.dishes else 1
-        backend_cost = (receiver_cost_factor * num_dishes) + \
-            (correlator_cost_factor * pow(num_dishes, 2)) + \
-            maser_cost
+        if not site.name in cost_config.no_upgrade:
+            receiver_cost_factor = const['site_development_values_table']\
+                .at['receiver_cost_factor', 'Value']
+            if cost_config.recording_frequencies > 2:
+                triband_cost_multiplier = const['site_development_values_table']\
+                    .at['triband_cost_multiplier', 'Value']
+                receiver_cost_factor = receiver_cost_factor * triband_cost_multiplier
+            correlator_cost_factor = const['site_development_values_table']\
+                .at['correlator_cost_factor', 'Value']
+            maser_cost = const['site_development_values_table'].at['timing_dbe_cost', 'Value']
+            num_dishes = len(site.dishes) if site.dishes else 1
+            backend_cost = (receiver_cost_factor * num_dishes) + \
+                (correlator_cost_factor * pow(num_dishes, 2)) + \
+                maser_cost
 
-        site_costs.at['Backend costs', siteindex] = backend_cost
+            site_costs.at['Backend costs', siteindex] = backend_cost
+        else:
+            site_costs.at['Backend costs', siteindex] = 0
+
 
         # Antenna Commissioning
         if not site.eht:
