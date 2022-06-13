@@ -47,7 +47,8 @@ class Source:
     def __init__(self, name, **kwargs):
         self.name = name
         for k,v in kwargs.items():
-            setattr(self, k.lower(), v)
+            if v != '':
+                setattr(self, k.lower(), v)
 
     def freq_list(self):
         the_list=[]
