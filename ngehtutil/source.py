@@ -29,6 +29,17 @@ class Source:
     def from_name(name):
         return _THE_SOURCES[name]
 
+    @staticmethod
+    def reinit_sources():
+        global _THE_SOURCES
+        _THE_SOURCES = None
+        _init_sources()
+
+    @staticmethod
+    def add_source(name, **kwargs):
+        global _THE_SOURCES
+        _THE_SOURCES[name] = Source(name=name, **kwargs)
+
     @classmethod
     def get_default(cls):
         return cls.from_name(cls.get_list()[0])
@@ -52,7 +63,11 @@ class Source:
         if not frequency in self.freq_list():
             raise ValueError(f'No frequency {frequency} for source {self.name}')
 
-        file_name = getattr(self,f'{int(frequency)}_image')
+        try:
+            file_name = getattr(self,f'{int(frequency)}_image')
+        except AttributeError:
+            return None
+
         if file_name:
             path = os.path.abspath(__file__)
             dir_path = os.path.dirname(path)
@@ -67,11 +82,18 @@ class Source:
         if not frequency in self.freq_list():
             raise ValueError(f'No frequency {frequency} for source {self.name}')
 
-        file_name = getattr(self, f'{int(frequency)}_data')
+        try:
+            file_name = getattr(self, f'{int(frequency)}_data')
+        except AttributeError:
+            return None
+            
         if file_name:
-            path = os.path.abspath(__file__)
-            dir_path = os.path.dirname(path)
-            data = f'{dir_path}/models/{file_name}'
+            if file_name[0] is not '/':
+                path = os.path.abspath(__file__)
+                dir_path = os.path.dirname(path)
+                data = f'{dir_path}/models/{file_name}'
+            else:
+                data = file_name
             return data
         else:
             return None
@@ -83,16 +105,18 @@ class Source:
         return f'Source {self.name}'
 
 
-
  ## Helper functions
 
 def _init_sources():
     """ do the initial setup on sources """
     global _THE_SOURCES
     if _THE_SOURCES is None:
+        _THE_SOURCES = {}
         path=str(Path(__file__).parent) + '/config'
         srcs = pd.read_csv(f'{path}/sources.csv', index_col=0)
-        _THE_SOURCES = {x:Source(name=x, **(srcs.loc[x].to_dict())) for x in srcs.index}
+        # _THE_SOURCES = {x:Source(name=x, **(srcs.loc[x].to_dict())) for x in srcs.index}
+        for x in srcs.index:
+            Source.add_source(name=x, **(srcs.loc[x].to_dict()))
 
 _init_sources()
 
