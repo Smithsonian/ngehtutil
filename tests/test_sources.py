@@ -64,3 +64,29 @@ class TestClass(unittest.TestCase):
     def test_default_source(self):
         s = Source.get_default()
         self.assertEqual(type(s),Source)
+
+
+    def test_add_source(self):
+        n1 = len(Source.get_list())
+        attrs = {'230_data':'test1'}
+        Source.add_source('testsource', **attrs)
+        n2 = len(Source.get_list())
+        self.assertTrue(n2 == n1 + 1)
+
+        s = Source.from_name('testsource')
+        self.assertTrue(s.name=='testsource')
+        self.assertTrue(len(s.freq_list())==1)
+        self.assertTrue(s.freq_list()[0]==230)
+        self.assertTrue(s.fits(230)[-5:]=='test1')
+        self.assertTrue(s.picture(230) is None)
+
+        attrs = {'230_data':'/foo/test1'}
+        Source.add_source('testsource2', **attrs)
+        s2 = Source.from_name('testsource2')
+        self.assertTrue(s2.fits(230)=='/foo/test1')
+
+        Source.reinit_sources()
+        n3 = len(Source.get_list())
+        self.assertTrue(n1==n3)
+
+
