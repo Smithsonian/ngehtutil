@@ -93,7 +93,7 @@ class CostTestClass(unittest.TestCase):
 
         # an array of 1 and an array of 10 should cost close to 10x - not exactly due to rounding
         # in the amount of data grabbed per site
-        self.assertTrue(math.isclose(array1_cost, array2_cost_per_site, rel_tol=0.01))
+        self.assertTrue(math.isclose(array1_cost, array2_cost_per_site, rel_tol=0.02))
 
     def test_dish_const_cost(self):
         # verify that costs are different for a site where we have to build a dish vs. one where
