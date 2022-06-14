@@ -182,9 +182,9 @@ def calculate_operating_mode(cost_config, sites, const):
 
     # calculate the amount of data collected per site per hour
     # 'bandwidth' can be overridden by specifying 'recording_bandwidth' in configuration
-    vals = const['data_management_values_table'].loc[['Recording bit depth',
-                                                  'Sidebands', 'Polarizations',
-                                                  'Oversampling factor']].Value
+    vals = const['data_management_values_table'].loc[['bit_depth',
+                                                  'sidebands', 'polarizations',
+                                                  'oversampling']].Value
     bandwidth = cost_config.recording_bandwidth
     frequencies = cost_config.recording_frequencies
     gbits_per_second = functools.reduce(operator.mul, vals) * bandwidth * frequencies
@@ -482,12 +482,12 @@ def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting
     data_management_costs['Personnel'] = \
         const['data_management_option_values_table']\
             .loc[data_management_strategy,'fte_required'] * \
-                const['data_management_values_table'].at['FTE cost', 'Value']
+                const['data_management_values_table'].at['fte_cost', 'Value']
 
     # costs to hold data in cold storage while we wait for it all to trickle in
     # if we're in Cloud mode, need to pay for 12 month minimum for cold storage
     months_to_hold = 12 if data_management_strategy == 'Cloud' else const[
-        'data_management_values_table'].at['Months for holding data', 'Value']
+        'data_management_values_table'].at['holding_months', 'Value']
     data_management_costs['Holding Data Storage Costs'] = \
         const['data_management_option_values_table']\
             .at[data_management_strategy,'holding_storage_perPB'] * \
@@ -499,7 +499,7 @@ def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting
         const['data_management_option_values_table']\
             .loc[data_management_strategy,'fast_storage_perPB'] * \
                 const['data_management_values_table']\
-                    .at['Months for processing', 'Value'] * total_pb_per_year
+                    .at['processing_months', 'Value'] * total_pb_per_year
 
     # cost to transfer data from one class of storage to another
     data_management_costs['Transfer Costs'] = const['data_management_option_values_table']\
@@ -515,16 +515,16 @@ def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting
 
     # cost for recorders - one per station
     data_management_costs['Site Recorders'] = sites_count * \
-        const['data_management_values_table'].at['Recorder Cost', 'Value']
+        const['data_management_values_table'].at['recorder_cost', 'Value']
 
     # media cost
     max_nights_media = const['data_management_values_table']\
-        .at['Max nights of media on-hand', 'Value']
+        .at['media_on_hand', 'Value']
     nights_of_media = min(max_nights_media, collecting_days_per_year)
     total_pb_per_year_per_site = (total_pb_per_year / sites_count) if sites_count else 0
     pb_of_media_per_site = nights_of_media * (total_pb_per_year_per_site / collecting_days_per_year)
     data_management_costs['Site Media'] = sites_count * pb_of_media_per_site * \
-        const['data_management_values_table'].at['Media Cost / PB', 'Value']
+        const['data_management_values_table'].at['media_cost_pb', 'Value']
 
     # station opex - cost to ship the data
     data_management_costs['Data Shipping'] = const['data_management_option_values_table']\
