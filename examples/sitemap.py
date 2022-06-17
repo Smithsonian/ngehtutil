@@ -63,23 +63,6 @@ phase_2_sites = [
     'YAN'
 ]
 
-orange_sites = [
-    'BAJA',
-    'CNI',
-    'LAS',
-    'OVRO',
-    'HAY'
-]
-
-partial_eht_sites = [
-    'LMT',
-    'JCMT',
-    'APEX',
-    'SMT',
-    'GLT'
-]
-
-
 sites=[eht_sites, phase_1_sites, phase_2_sites]
 legend=['Existing EHT', 'ngEHT Phase 1', 'Poss. ngEHT Phase 2']
 colors=['blue','orange', 'white']
@@ -132,5 +115,4 @@ fig.update_layout(legend=dict(
     borderwidth = 1,
 ))
 
-# fig.update_layout(showlegend=False)
 fig.show()
