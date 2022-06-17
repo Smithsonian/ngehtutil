@@ -81,6 +81,7 @@ partial_eht_sites = [
 
 
 sites=[eht_sites, phase_1_sites, phase_2_sites]
+legend=['Existing EHT', 'ngEHT Phase 1', 'Poss. ngEHT Phase 2']
 colors=['blue','orange', 'white']
 
 centerlon = -100
@@ -92,34 +93,44 @@ for i,lst in enumerate(sites):
     lats = []
     lons = []
     names = []
-    c=colors[i]
     for s in lst:
         s=Station.from_name(s)
         lats.append(s.latitude)
         lons.append(s.longitude)
         names.append(s.name)
-        fig.add_trace(
-            go.Scattergeo(
-                lon = lons,
-                lat = lats,
-                text = names if show_names else None,
-                textposition="top center",
-                mode = 'markers+text',
-                marker = dict(
-                    size = 10,
-                    color = c,
-                    line = dict(
-                        width = 1,
-                        color = 'black'
-                    )
-                )
 
-            )
+    fig.add_trace(
+        go.Scattergeo(
+            lon = lons,
+            lat = lats,
+            text = names if show_names else None,
+            textposition="top center",
+            mode = 'markers+text',
+            marker = dict(
+                size = 10,
+                color = colors[i],
+                line = dict(
+                    width = 1,
+                    color = 'black'
+                )
+            ),
+            name = legend[i]
         )
-    fig.update_geos(
-        center=dict(lat=0, lon=-100), # this will center on the point
-        lataxis=dict(range=[-90,90]),
-        lonaxis=dict(range=[-180+centerlon,180+centerlon]),
     )
-    fig.update_layout(showlegend=False)
+
+fig.update_geos(
+    center=dict(lat=0, lon=-100), # this will center on the point
+    lataxis=dict(range=[-90,90]),
+    lonaxis=dict(range=[-180+centerlon,180+centerlon]),
+)
+
+fig.update_layout(legend=dict(
+    yanchor="bottom",
+    y=0.05,
+    xanchor="left",
+    x=0.01,
+    borderwidth = 1,
+))
+
+# fig.update_layout(showlegend=False)
 fig.show()
