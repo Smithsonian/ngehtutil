@@ -48,6 +48,20 @@ class CostTestClass(unittest.TestCase):
         all_new = sum([x for x in new_site_costs.to_dict().values() if not type(x) is str])
         self.assertTrue(all_site >= all_new)
 
+    def test_cost_config(self):
+        config = CostConfig()
+        array = Array.from_name(Array.get_list()[0])
+        config.recording_frequencies = 2
+        total_site_costs1, _ = calculate_capital_costs(config, array.stations(), \
+            get_cost_constants())
+
+        config.recording_frequencies = 3
+        total_site_costs2, _ = calculate_capital_costs(config, array.stations(), \
+            get_cost_constants())
+
+        self.assertTrue(total_site_costs1['Receiver and Backend costs'] < \
+            total_site_costs2['Receiver and Backend costs'])
+
     def test_operations_costs(self):
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
