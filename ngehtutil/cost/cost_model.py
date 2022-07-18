@@ -274,11 +274,17 @@ def calculate_capital_costs(cost_config, sites, const):
                     .at[site.polar_nonpolar, 'Value']  # polar multiplier
 
             site_costs.at['Antenna construction', siteindex] = construction_cost
+
+            transport_cost = const['site_development_values_table'].loc[
+                'antenna_transport_cost', 'Value']
+            site_costs.at['Antenna transport', siteindex] = transport_cost
+
         else:
             # for existing sites, don't need to build dish
             site_costs.at['Site acquisition / leasing', siteindex] = 0
             site_costs.at['Infrastructure', siteindex] = 0
             site_costs.at['Antenna construction', siteindex] = 0
+            site_costs.at['Antenna transport', siteindex] = 0
 
         # Backend - receiver, maser
         if not site.name in cost_config.no_upgrade:
