@@ -79,6 +79,11 @@ class Array:
                 raise ValueError("Can only add lists of Stations to an array")
             if not sum([1 if type(x) is Station else 0 for x in stns]) == len(stns):
                 raise ValueError("Can only add lists of Stations to an array")
+            names = [s.name for s in stns]
+            for i,n in enumerate(names[:-1]):
+                if n in names[i+1:]:
+                    raise ValueError("Can't have stations with duplicate names in an array")
+
             self._stations = stns
 
         return self._stations

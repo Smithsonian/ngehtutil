@@ -422,8 +422,9 @@ Class to hold configuration information used by the cost model.
 
 The cost module has a few functions to calculate costs:
 
-    costs = calculate_costs(cost_config, stations, cost_constants=None)
-    # returns a dict of cost items including capital, operating, data handling, and average costs
+    costs, site_costs = calculate_costs(cost_config, stations, cost_constants=None)
+    # returns a dict of cost items including capital, operating, data handling, and average costs;
+    # also returns a dict of costs indexed by site name
     #
     # cost_constants can be left None in which case the module will use constants stored in-memory
     # if you need a deep copy (for instance, for cluster computing) use get_cost_constants()

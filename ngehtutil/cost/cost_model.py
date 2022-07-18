@@ -100,7 +100,7 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
     array_stats = pd.Series(array_stats)
     array_stats = pd.concat([array_stats,calculate_operating_mode(cost_config, sites, const)])
 
-    total_site_costs, new_site_costs = calculate_capital_costs(cost_config, sites, const)
+    total_site_costs, new_site_costs, site_costs = calculate_capital_costs(cost_config, sites, const)
 
     t, n = calculate_operations_costs(cost_config, sites, const)
     total_site_costs = pd.concat([total_site_costs, t])
@@ -160,9 +160,7 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
 
     everything = pd.concat([pd.Series(array_stats), total_site_costs, data_management_costs, \
                       avg_new_site_costs, total_costs])
-    return everything.to_dict()
-
-
+    return everything.to_dict(), site_costs.to_dict()
 
 
     ##
@@ -242,7 +240,9 @@ def calculate_capital_costs(cost_config, sites, const):
     new_site_costs['Design NRE'] = total_new_site_nre
 
     # now some numbers for each site, depending on its location, whether it alreasy exists, etc.
-    for siteindex, site in enumerate(sites):
+    for site in sites:
+
+        siteindex = site.name
 
         site_costs.loc[:, siteindex] = 0  # everything starts out FREE!!
 
@@ -323,7 +323,7 @@ def calculate_capital_costs(cost_config, sites, const):
     new_sites = [i for i,x in enumerate(sites) if x.dishes is None]
     new_site_costs = \
         pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
-    return total_site_costs, new_site_costs
+    return total_site_costs, new_site_costs, site_costs
 
 ###
 ### Antenna Operations Costs Per Observation Year, which is primarily about staffing

@@ -14,6 +14,7 @@ from ngehtutil.cost import calculate_costs, get_cost_constants
 from ngehtutil.cost import CostConfig
 from ngehtutil.cost.cost_model import *
 from ngehtutil import *
+from copy import copy
 
 class CostTestClass(unittest.TestCase):
     """ A set of tests for the cost module """
@@ -36,13 +37,14 @@ class CostTestClass(unittest.TestCase):
     def test_costmodel_stationobjects(self):
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
-        costs = calculate_costs(config, array.stations())
+        costs, site_costs = calculate_costs(config, array.stations())
         self.assertEqual(type(costs), dict)
+        self.assertEqual(type(site_costs), dict)
 
     def test_capital_costs(self):
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
-        total_site_costs, new_site_costs = calculate_capital_costs(config, array.stations(), \
+        total_site_costs, new_site_costs, site_costs = calculate_capital_costs(config, array.stations(), \
             get_cost_constants())
         all_site = sum([x for x in total_site_costs.to_dict().values() if not type(x) is str])
         all_new = sum([x for x in new_site_costs.to_dict().values() if not type(x) is str])
@@ -52,11 +54,11 @@ class CostTestClass(unittest.TestCase):
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
         config.recording_frequencies = 2
-        total_site_costs1, _ = calculate_capital_costs(config, array.stations(), \
+        total_site_costs1, _, _ = calculate_capital_costs(config, array.stations(), \
             get_cost_constants())
 
         config.recording_frequencies = 3
-        total_site_costs2, _ = calculate_capital_costs(config, array.stations(), \
+        total_site_costs2, _, _ = calculate_capital_costs(config, array.stations(), \
             get_cost_constants())
 
         self.assertTrue(total_site_costs1['Receiver and Backend costs'] < \
@@ -90,15 +92,18 @@ class CostTestClass(unittest.TestCase):
 
         # get the costs of an empty array
         array0 = Array('test',[])
-        costs0 = calculate_costs(config, array0.stations())
+        costs0, _ = calculate_costs(config, array0.stations())
 
         stn = Station.from_name('LOS')
         array1 = Array('test',[stn]) # one LOS
-        costs1 = calculate_costs(config, array1.stations())
+        costs1, _ = calculate_costs(config, array1.stations())
 
         multi = 10
-        array2 = Array('test',[stn]*multi) # multiple LOSs
-        costs2 = calculate_costs(config, array2.stations())
+        stns2 = [copy(stn) for _ in range(0,multi)]
+        for i,a in enumerate(stns2):
+            a.name = f'{a.name}_{i}'
+        array2 = Array('test',stns2) # multiple LOSs
+        costs2, _ = calculate_costs(config, array2.stations())
 
         base_cost = costs0['TOTAL CAPEX'] + costs1['Design NRE']
         array1_cost = costs1['TOTAL CAPEX'] - base_cost
@@ -115,9 +120,9 @@ class CostTestClass(unittest.TestCase):
         config = CostConfig()
 
         stn1 = Station.from_name('HAY') # pick one that already has a dish
-        cost1 = calculate_costs(config, [stn1])
+        cost1, _ = calculate_costs(config, [stn1])
 
         stn1.dishes = None # get rid of the dish
-        cost2 = calculate_costs(config, [stn1])
+        cost2, _ = calculate_costs(config, [stn1])
 
         self.assertTrue(cost1['TOTAL CAPEX'] < cost2['TOTAL CAPEX'])
