@@ -137,6 +137,7 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
         'New Site Avg Site acquisition / leasing',
         'New Site Avg Infrastructure',
         'New Site Avg Antenna construction',
+        'New Site Avg Antenna transport',
         'New Site Avg Antenna commissioning',
         'New Site Avg Site Recorders',
         'New Site Avg Site Media',
@@ -320,7 +321,8 @@ def calculate_capital_costs(cost_config, sites, const):
 
     total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
     
-    new_sites = [i for i,x in enumerate(sites) if x.dishes is None]
+    new_sites = [x.name for x in sites if x.dishes is None]
+
     new_site_costs = \
         pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
     return total_site_costs, new_site_costs, site_costs
