@@ -206,8 +206,16 @@ def calculate_capital_costs(cost_config, sites, const):
     #
     #  calculate costs based on the array configuration - NRE, construction costs, operating costs
     #
-    site_costs = pd.DataFrame(index=['Site acquisition / leasing', 'Infrastructure',
-                                     'Antenna construction', 'Antenna commissioning'])
+    cost_list = [
+        'Site acquisition / leasing',
+        'Infrastructure',
+        'Antenna construction',
+        'Antenna transport',
+        'Receiver and Backend costs',
+        'Antenna commissioning',
+    ]
+
+    site_costs = pd.DataFrame(index=cost_list)
     total_site_costs = pd.Series(dtype='float') # holds total cost for all sites
     new_site_costs = pd.Series(dtype='float') # holds total cost for just new sites
     # add a row just to hold the name of the category.
@@ -240,12 +248,14 @@ def calculate_capital_costs(cost_config, sites, const):
     total_site_costs['Design NRE'] = total_new_site_nre
     new_site_costs['Design NRE'] = total_new_site_nre
 
-    # now some numbers for each site, depending on its location, whether it alreasy exists, etc.
+    # now some numbers for each site, depending on its location, whether it already exists, etc.
+
     for site in sites:
 
         siteindex = site.name
 
-        site_costs.loc[:, siteindex] = 0  # everything starts out FREE!!
+        # set up the costs. Put in a junk value to make sure everything gets set properly
+        site_costs.at[:, siteindex] = [-99] * len(cost_list)
 
         # For new sites we have to worry about costs to acquire, build, commission
 
