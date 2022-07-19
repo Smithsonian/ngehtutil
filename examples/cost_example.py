@@ -20,7 +20,7 @@ def main():
         hours_per_observation=60*8
     )
     array = Array.from_name('ngEHT Ref. Array 1.1A + EHT2022')
-    costs = calculate_costs(config, array.stations())
+    costs, _ = calculate_costs(config, array.stations())
     
     print(f'array: {array}')
     print('CONFIGURATION:')
