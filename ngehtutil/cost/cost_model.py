@@ -100,9 +100,11 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
     array_stats = pd.Series(array_stats)
     array_stats = pd.concat([array_stats,calculate_operating_mode(cost_config, sites, const)])
 
-    total_site_costs, new_site_costs = calculate_capital_costs(cost_config, sites, const)
+    design_NRE = calculate_design_NRE(cost_config, sites, const)
 
-    t, n = calculate_operations_costs(cost_config, sites, const)
+    total_site_costs, new_site_costs, per_site_cap_costs = calculate_capital_costs(cost_config, sites, const)
+
+    t, n, per_site_ops_costs = calculate_operations_costs(cost_config, sites, const)
     total_site_costs = pd.concat([total_site_costs, t])
     new_site_costs = pd.concat([new_site_costs, n])
 
@@ -133,10 +135,10 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
                                     avg_new_site_data_costs])
 
     capex_costs = [
-        'New Site Avg Design NRE',
         'New Site Avg Site acquisition / leasing',
         'New Site Avg Infrastructure',
         'New Site Avg Antenna construction',
+        'New Site Avg Antenna transport',
         'New Site Avg Antenna commissioning',
         'New Site Avg Site Recorders',
         'New Site Avg Site Media',
@@ -146,6 +148,7 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
 
     total_costs = pd.Series(dtype='float')
     total_costs['TOTAL COSTS'] = ''
+    total_costs['DESIGN NRE'] = design_NRE
     total_costs['TOTAL CAPEX'] = total_site_costs[1:].drop('Antenna operations').sum() +\
                                  data_management_costs[['Cluster Build Cost',
                                                         'Site Recorders',
@@ -158,16 +161,28 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
                                                         'Computation Costs',
                                                         'Data Shipping']].sum()
 
+    if total_sites_count:
+        everything_per_site = pd.concat([per_site_cap_costs, per_site_ops_costs])
+        everything_per_site.at['Data mgmt capital',:] = data_management_costs[['Site Recorders',
+                                                                'Site Media']].sum() / total_sites_count
+        everything_per_site.at['Data mgmt operations',:] = data_management_costs[['Personnel',
+                                                            'Holding Data Storage Costs',
+                                                            'Fast Data Storage Costs',
+                                                            'Transfer Costs',
+                                                            'Computation Costs',
+                                                            'Data Shipping']].sum() / total_sites_count
+        everything_per_site = everything_per_site.to_dict()
+    else:
+        everything_per_site = {}
+
     everything = pd.concat([pd.Series(array_stats), total_site_costs, data_management_costs, \
                       avg_new_site_costs, total_costs])
-    return everything.to_dict()
+    return everything.to_dict(), everything_per_site
 
 
-
-
-    ##
-    ## OPERATION MODE CALCULATIONS
-    ##
+##
+## OPERATION MODE CALCULATIONS
+##
 
 def calculate_operating_mode(cost_config, sites, const):
     array_stats = {}
@@ -199,6 +214,19 @@ def calculate_operating_mode(cost_config, sites, const):
     return pd.Series(array_stats)
 
 
+##
+## DESIGN NRE CALCULATIONS
+##
+def calculate_design_NRE(cost_config, sites, const):
+    # calculate the total NRE costs for designing new stations
+    nre_costs = 0
+    if len(sites):
+        # do we need to design a new antenna?
+        if sum([0 if x.dishes else 1 for x in sites]):
+            nre_costs = const['site_development_values_table'].at['antenna_development_nre','Value']
+    return nre_costs
+
+
 ###
 ### CAPITAL COSTS FOR ANTENNAS
 ###
@@ -207,8 +235,17 @@ def calculate_capital_costs(cost_config, sites, const):
     #
     #  calculate costs based on the array configuration - NRE, construction costs, operating costs
     #
-    site_costs = pd.DataFrame(index=['Site acquisition / leasing', 'Infrastructure',
-                                     'Antenna construction', 'Antenna commissioning'])
+    cost_list = [
+        'Site acquisition / leasing',
+        'Infrastructure',
+        'Support equipment',
+        'Antenna construction',
+        'Antenna transport',
+        'Receiver and Backend costs',
+        'Antenna commissioning',
+    ]
+
+    site_costs = pd.DataFrame(index=cost_list)
     total_site_costs = pd.Series(dtype='float') # holds total cost for all sites
     new_site_costs = pd.Series(dtype='float') # holds total cost for just new sites
     # add a row just to hold the name of the category.
@@ -228,23 +265,14 @@ def calculate_capital_costs(cost_config, sites, const):
                 (antenna_factor1 * dish_size) + \
                 (antenna_factor2 * pow(dish_size, antenna_exp))
 
-    # calculate the total NRE costs for designing new stations
-    total_new_site_nre = 0
-    if len(sites):
-        new_dish_size = cost_config.dish_size
-        autonomy_multiplier = const['autonomy_mode_values_table'].loc['Manual'][
-            'complexity_factor']
-        nre_costs = const['site_development_values_table'].at['antenna_development_nre','Value'] * \
-                        single_antenna_cost * autonomy_multiplier
+    # now some numbers for each site, depending on its location, whether it already exists, etc.
 
-        total_new_site_nre = nre_costs
-    total_site_costs['Design NRE'] = total_new_site_nre
-    new_site_costs['Design NRE'] = total_new_site_nre
+    for site in sites:
 
-    # now some numbers for each site, depending on its location, whether it alreasy exists, etc.
-    for siteindex, site in enumerate(sites):
+        siteindex = site.name
 
-        site_costs.loc[:, siteindex] = 0  # everything starts out FREE!!
+        # set up the costs. Put in a junk value to make sure everything gets set properly
+        site_costs.at[:, siteindex] = [-99] * len(cost_list)
 
         # For new sites we have to worry about costs to acquire, build, commission
 
@@ -265,6 +293,11 @@ def calculate_capital_costs(cost_config, sites, const):
                             siteindex] = infrastructure_baseline * infrascruture_scaling_factor
 
 
+            # Support Equipment
+            site_costs.at['Support equipment', siteindex] = \
+                const['site_development_values_table'].loc['ground_support_equipment', 'Value']
+
+
             # site.set_diameter(dish_size) # the site was under-defined, so give it a dish
 
             construction_cost = single_antenna_cost
@@ -274,11 +307,18 @@ def calculate_capital_costs(cost_config, sites, const):
                     .at[site.polar_nonpolar, 'Value']  # polar multiplier
 
             site_costs.at['Antenna construction', siteindex] = construction_cost
+
+            transport_cost = const['site_development_values_table'].loc[
+                'antenna_transport_cost', 'Value']
+            site_costs.at['Antenna transport', siteindex] = transport_cost
+
         else:
             # for existing sites, don't need to build dish
             site_costs.at['Site acquisition / leasing', siteindex] = 0
             site_costs.at['Infrastructure', siteindex] = 0
+            site_costs.at['Support equipment', siteindex] = 0
             site_costs.at['Antenna construction', siteindex] = 0
+            site_costs.at['Antenna transport', siteindex] = 0
 
         # Backend - receiver, maser
         if not site.name in cost_config.no_upgrade:
@@ -292,7 +332,8 @@ def calculate_capital_costs(cost_config, sites, const):
             dbe_cost = const['site_development_values_table'].at['dbe_cost', 'Value'] * \
                 cost_config.recording_frequencies
             num_dishes = len(site.dishes) if site.dishes else 1
-            fe_be_cost = (receiver_cost + maser_cost + dbe_cost) * num_dishes
+            # add up costs and add a little for spare parts
+            fe_be_cost = (receiver_cost + maser_cost + dbe_cost + (dbe_cost*.2)) * num_dishes
         else:
             fe_be_cost = 0
         site_costs.at['Receiver and Backend costs', siteindex] = fe_be_cost
@@ -300,24 +341,21 @@ def calculate_capital_costs(cost_config, sites, const):
 
         # Antenna Commissioning
         if site.dishes is None:
-            if site.existing_infrastructure == 'Complete':
-                # cost to commission existing site
-                commissioning_cost = const['site_development_values_table']\
+            site_costs.at['Antenna commissioning', siteindex] = \
+                const['site_development_values_table']\
+                    .at['commissioning_new', 'Value']
+        else:
+            site_costs.at['Antenna commissioning', siteindex] = \
+                const['site_development_values_table']\
                     .at['commissioning_existing', 'Value']
-            else:
-                # cost to commission new facility * polar/non-polar factor
-                commissioning_cost = const['site_development_values_table']\
-                    .at['commissioning_new', 'Value'] * \
-                    const['site_development_values_table']\
-                        .loc[site.polar_nonpolar, 'Value']
-            site_costs.at['Antenna commissioning', siteindex] = commissioning_cost
 
     total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
     
-    new_sites = [i for i,x in enumerate(sites) if x.dishes is None]
+    new_sites = [x.name for x in sites if x.dishes is None]
+
     new_site_costs = \
         pd.concat([new_site_costs, site_costs[site_costs.columns.intersection(new_sites)].sum(axis=1)])
-    return total_site_costs, new_site_costs
+    return total_site_costs, new_site_costs, site_costs
 
 ###
 ### Antenna Operations Costs Per Observation Year, which is primarily about staffing
@@ -342,11 +380,13 @@ def calculate_operations_costs(cost_config, sites, const):
                                         'total_nonlocal_labor_maintenance',
                                         'total_local_labor_mainenance'])
 
-    for siteindex, site in enumerate(sites):
+    for site in sites:
         #
         # Antenna Operations costs
         # todo - don't we have operations costs for existing sites too?
         #
+        siteindex = site.name
+
         operation_costs.loc[:, siteindex] = 0
         autonomy_scenario = cost_config.autonomy_of_operations
         site_region = site.region
@@ -421,6 +461,16 @@ def calculate_operations_costs(cost_config, sites, const):
             operation_costs\
                 .at['total_nonlocal_labor_maintenance',siteindex] = \
                     total_nonlocal_labor_maintenance
+        else:
+            # if it's an existing site, we just assume we have to pay $10k/night
+            total_local_labor_observation = \
+                obs_days_per_year * \
+                    const['site_development_values_table']\
+                    .at['existing_site_rental_per_night', 'Value']
+
+            operation_costs\
+                .at['total_local_labor_observation',siteindex] = total_local_labor_observation
+
 
         # Antenna operations - total local labor needed for maintenance
         local_labor_remote_maintenance = const['autonomy_mode_values_table']\
@@ -451,7 +501,7 @@ def calculate_operations_costs(cost_config, sites, const):
     total_site_costs['Fulltime staff'] = cost_of_fulltime_staff
     new_site_costs['Fulltime staff'] = cost_of_fulltime_staff
 
-    return total_site_costs, new_site_costs
+    return total_site_costs, new_site_costs, site_costs
 
 
 ##
@@ -512,7 +562,7 @@ def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting
 
     # cost for recorders - one per station
     data_management_costs['Site Recorders'] = sites_count * \
-        const['data_management_values_table'].at['recorder_cost', 'Value']
+        const['data_management_values_table'].at['recorder_cost', 'Value'] * 1.2 # spares
 
     # media cost
     max_nights_media = const['data_management_values_table']\

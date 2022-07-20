@@ -54,9 +54,12 @@ The cost for a single antenna is calculated using this formula:
     (antenna_factor1 * dish size) + 
     (antenna_factor2 * pow(dish_size, antenna_exp))
 
+
 This allows for different calculations than the usual *size^2.7*, which, as we get more data from vendors, does not necessarily hold.
 
-For an existing site, we don't need to build a dish, so `Site acquisition / leasing`, `Infrastructure`, and `Antenna construction` are all set to zero.
+- `Antenna transport` comes from the constants table
+
+For an existing site, we don't need to build a dish, so `Site acquisition / leasing`, `Infrastructure`, `Antenna construction`, and `Antenna transport` are all set to zero.
 
 For sites where we need to build a new receiver/back end/maser (that is, sites that are not in the "no upgrade" list):
 
