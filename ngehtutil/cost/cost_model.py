@@ -224,6 +224,7 @@ def calculate_capital_costs(cost_config, sites, const):
     cost_list = [
         'Site acquisition / leasing',
         'Infrastructure',
+        'Support equipment',
         'Antenna construction',
         'Antenna transport',
         'Receiver and Backend costs',
@@ -278,6 +279,11 @@ def calculate_capital_costs(cost_config, sites, const):
                             siteindex] = infrastructure_baseline * infrascruture_scaling_factor
 
 
+            # Support Equipment
+            site_costs.at['Support equipment', siteindex] = \
+                const['site_development_values_table'].loc['ground_support_equipment', 'Value']
+
+
             # site.set_diameter(dish_size) # the site was under-defined, so give it a dish
 
             construction_cost = single_antenna_cost
@@ -296,6 +302,7 @@ def calculate_capital_costs(cost_config, sites, const):
             # for existing sites, don't need to build dish
             site_costs.at['Site acquisition / leasing', siteindex] = 0
             site_costs.at['Infrastructure', siteindex] = 0
+            site_costs.at['Support equipment', siteindex] = 0
             site_costs.at['Antenna construction', siteindex] = 0
             site_costs.at['Antenna transport', siteindex] = 0
 
