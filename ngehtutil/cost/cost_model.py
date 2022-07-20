@@ -328,7 +328,8 @@ def calculate_capital_costs(cost_config, sites, const):
             dbe_cost = const['site_development_values_table'].at['dbe_cost', 'Value'] * \
                 cost_config.recording_frequencies
             num_dishes = len(site.dishes) if site.dishes else 1
-            fe_be_cost = (receiver_cost + maser_cost + dbe_cost) * num_dishes
+            # add up costs and add a little for spare parts
+            fe_be_cost = (receiver_cost + maser_cost + dbe_cost + (dbe_cost*.2)) * num_dishes
         else:
             fe_be_cost = 0
         site_costs.at['Receiver and Backend costs', siteindex] = fe_be_cost
@@ -557,7 +558,7 @@ def calculate_data_costs(cost_config, sites_count, total_pb_per_year, collecting
 
     # cost for recorders - one per station
     data_management_costs['Site Recorders'] = sites_count * \
-        const['data_management_values_table'].at['recorder_cost', 'Value']
+        const['data_management_values_table'].at['recorder_cost', 'Value'] * 1.2 # spares
 
     # media cost
     max_nights_media = const['data_management_values_table']\
