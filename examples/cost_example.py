@@ -17,7 +17,8 @@ def main():
     config = CostConfig(
         observations_per_year=1,
         days_per_observation=60,
-        hours_per_observation=60*8
+        hours_per_observation=60*8,
+        no_upgrade = ['ALMA', 'NOEMA', 'SMA']
     )
     array = Array.from_name('ngEHT Ref. Array 1.1A + EHT2022')
     costs, _ = calculate_costs(config, array.stations())
