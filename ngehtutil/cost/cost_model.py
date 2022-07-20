@@ -100,7 +100,9 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
     array_stats = pd.Series(array_stats)
     array_stats = pd.concat([array_stats,calculate_operating_mode(cost_config, sites, const)])
 
-    total_site_costs, new_site_costs, site_costs = calculate_capital_costs(cost_config, sites, const)
+    design_NRE = calculate_design_NRE(cost_config, sites, const)
+
+    total_site_costs, new_site_costs, per_site_costs = calculate_capital_costs(cost_config, sites, const)
 
     t, n = calculate_operations_costs(cost_config, sites, const)
     total_site_costs = pd.concat([total_site_costs, t])
@@ -133,7 +135,6 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
                                     avg_new_site_data_costs])
 
     capex_costs = [
-        'New Site Avg Design NRE',
         'New Site Avg Site acquisition / leasing',
         'New Site Avg Infrastructure',
         'New Site Avg Antenna construction',
@@ -147,6 +148,7 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
 
     total_costs = pd.Series(dtype='float')
     total_costs['TOTAL COSTS'] = ''
+    total_costs['DESIGN NRE'] = design_NRE
     total_costs['TOTAL CAPEX'] = total_site_costs[1:].drop('Antenna operations').sum() +\
                                  data_management_costs[['Cluster Build Cost',
                                                         'Site Recorders',
@@ -161,12 +163,12 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
 
     everything = pd.concat([pd.Series(array_stats), total_site_costs, data_management_costs, \
                       avg_new_site_costs, total_costs])
-    return everything.to_dict(), site_costs.to_dict()
+    return everything.to_dict(), per_site_costs.to_dict()
 
 
-    ##
-    ## OPERATION MODE CALCULATIONS
-    ##
+##
+## OPERATION MODE CALCULATIONS
+##
 
 def calculate_operating_mode(cost_config, sites, const):
     array_stats = {}
@@ -196,6 +198,19 @@ def calculate_operating_mode(cost_config, sites, const):
     array_stats["Data Per Year - Full Array (PB)"] = total_data_collected_per_year
 
     return pd.Series(array_stats)
+
+
+##
+## DESIGN NRE CALCULATIONS
+##
+def calculate_design_NRE(cost_config, sites, const):
+    # calculate the total NRE costs for designing new stations
+    nre_costs = 0
+    if len(sites):
+        # do we need to design a new antenna?
+        if sum([0 if x.dishes else 1 for x in sites]):
+            nre_costs = const['site_development_values_table'].at['antenna_development_nre','Value']
+    return nre_costs
 
 
 ###
@@ -234,19 +249,6 @@ def calculate_capital_costs(cost_config, sites, const):
     single_antenna_cost = antenna_constant + \
                 (antenna_factor1 * dish_size) + \
                 (antenna_factor2 * pow(dish_size, antenna_exp))
-
-    # calculate the total NRE costs for designing new stations
-    total_new_site_nre = 0
-    if len(sites):
-        new_dish_size = cost_config.dish_size
-        autonomy_multiplier = const['autonomy_mode_values_table'].loc['Manual'][
-            'complexity_factor']
-        nre_costs = const['site_development_values_table'].at['antenna_development_nre','Value'] * \
-                        single_antenna_cost * autonomy_multiplier
-
-        total_new_site_nre = nre_costs
-    total_site_costs['Design NRE'] = total_new_site_nre
-    new_site_costs['Design NRE'] = total_new_site_nre
 
     # now some numbers for each site, depending on its location, whether it already exists, etc.
 
@@ -328,6 +330,8 @@ def calculate_capital_costs(cost_config, sites, const):
                     const['site_development_values_table']\
                         .loc[site.polar_nonpolar, 'Value']
             site_costs.at['Antenna commissioning', siteindex] = commissioning_cost
+        else:
+            site_costs.at['Antenna commissioning', siteindex] = 0
 
     total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
     

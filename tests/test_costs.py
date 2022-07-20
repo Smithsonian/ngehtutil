@@ -50,6 +50,11 @@ class CostTestClass(unittest.TestCase):
         all_new = sum([x for x in new_site_costs.to_dict().values() if not type(x) is str])
         self.assertTrue(all_site >= all_new)
 
+        # make sure all of the values in the costs are real
+        for k,v in total_site_costs.items():
+            if type(v) is int:
+                self.assertFalse(v<0)
+
     def test_cost_config(self):
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
@@ -105,7 +110,7 @@ class CostTestClass(unittest.TestCase):
         array2 = Array('test',stns2) # multiple LOSs
         costs2, _ = calculate_costs(config, array2.stations())
 
-        base_cost = costs0['TOTAL CAPEX'] + costs1['Design NRE']
+        base_cost = costs0['TOTAL CAPEX']
         array1_cost = costs1['TOTAL CAPEX'] - base_cost
         array2_cost = costs2['TOTAL CAPEX'] - base_cost
         array2_cost_per_site = array2_cost / multi
@@ -120,9 +125,30 @@ class CostTestClass(unittest.TestCase):
         config = CostConfig()
 
         stn1 = Station.from_name('HAY') # pick one that already has a dish
+        self.assertTrue(stn1.dishes is not None)
         cost1, _ = calculate_costs(config, [stn1])
 
-        stn1.dishes = None # get rid of the dish
-        cost2, _ = calculate_costs(config, [stn1])
+        stn2 = copy(stn1)
+        stn2.dishes = None # get rid of the dish
+        self.assertTrue(stn2.dishes is None)
+        cost2, _ = calculate_costs(config, [stn2])
+
+        print(cost1)
+        print('\n\n')
+        print(cost2)
 
         self.assertTrue(cost1['TOTAL CAPEX'] < cost2['TOTAL CAPEX'])
+
+
+    def test_design_NRE_cost(self):
+        # verify that we get a design NRE cost
+        config = CostConfig()
+
+        stn1 = Station.from_name('HAY') # pick one that already has a dish
+        cost1, _ = calculate_costs(config, [stn1])
+
+        stn2 = copy(stn1)
+        stn2.dishes = None # get rid of the dish
+        cost2, _ = calculate_costs(config, [stn2])
+
+        self.assertTrue(cost1['DESIGN NRE'] < cost2['DESIGN NRE'])
