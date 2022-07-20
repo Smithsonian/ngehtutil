@@ -319,19 +319,13 @@ def calculate_capital_costs(cost_config, sites, const):
 
         # Antenna Commissioning
         if site.dishes is None:
-            if site.existing_infrastructure == 'Complete':
-                # cost to commission existing site
-                commissioning_cost = const['site_development_values_table']\
-                    .at['commissioning_existing', 'Value']
-            else:
-                # cost to commission new facility * polar/non-polar factor
-                commissioning_cost = const['site_development_values_table']\
-                    .at['commissioning_new', 'Value'] * \
-                    const['site_development_values_table']\
-                        .loc[site.polar_nonpolar, 'Value']
-            site_costs.at['Antenna commissioning', siteindex] = commissioning_cost
+            site_costs.at['Antenna commissioning', siteindex] = \
+                const['site_development_values_table']\
+                    .at['commissioning_new', 'Value']
         else:
-            site_costs.at['Antenna commissioning', siteindex] = 0
+            site_costs.at['Antenna commissioning', siteindex] = \
+                const['site_development_values_table']\
+                    .at['commissioning_existing', 'Value']
 
     total_site_costs = pd.concat([total_site_costs, site_costs.sum(axis=1)])
     
