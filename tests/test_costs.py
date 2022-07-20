@@ -72,8 +72,8 @@ class CostTestClass(unittest.TestCase):
     def test_operations_costs(self):
         config = CostConfig()
         array = Array.from_name(Array.get_list()[0])
-        total_site_costs, new_site_costs = calculate_operations_costs(config, array.stations(), \
-            get_cost_constants())
+        total_site_costs, new_site_costs, per_site_costs = \
+            calculate_operations_costs(config, array.stations(), get_cost_constants())
         all_site = sum([x for x in total_site_costs.to_dict().values() if not type(x) is str])
         all_new = sum([x for x in new_site_costs.to_dict().values() if not type(x) is str])
         self.assertTrue(all_site >= all_new)

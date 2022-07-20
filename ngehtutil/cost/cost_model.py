@@ -102,9 +102,9 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
 
     design_NRE = calculate_design_NRE(cost_config, sites, const)
 
-    total_site_costs, new_site_costs, per_site_costs = calculate_capital_costs(cost_config, sites, const)
+    total_site_costs, new_site_costs, per_site_cap_costs = calculate_capital_costs(cost_config, sites, const)
 
-    t, n = calculate_operations_costs(cost_config, sites, const)
+    t, n, per_site_ops_costs = calculate_operations_costs(cost_config, sites, const)
     total_site_costs = pd.concat([total_site_costs, t])
     new_site_costs = pd.concat([new_site_costs, n])
 
@@ -161,9 +161,19 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
                                                         'Computation Costs',
                                                         'Data Shipping']].sum()
 
+    everything_per_site = pd.concat([per_site_cap_costs, per_site_ops_costs])
+    everything_per_site.at['Data mgmt capital',:] = data_management_costs[['Site Recorders',
+                                                            'Site Media']].sum() / total_sites_count
+    everything_per_site.at['Data mgmt perations',:] = data_management_costs[['Personnel',
+                                                        'Holding Data Storage Costs',
+                                                        'Fast Data Storage Costs',
+                                                        'Transfer Costs',
+                                                        'Computation Costs',
+                                                        'Data Shipping']].sum() / total_sites_count
+
     everything = pd.concat([pd.Series(array_stats), total_site_costs, data_management_costs, \
                       avg_new_site_costs, total_costs])
-    return everything.to_dict(), per_site_costs.to_dict()
+    return everything.to_dict(), everything_per_site.to_dict()
 
 
 ##
@@ -365,11 +375,13 @@ def calculate_operations_costs(cost_config, sites, const):
                                         'total_nonlocal_labor_maintenance',
                                         'total_local_labor_mainenance'])
 
-    for siteindex, site in enumerate(sites):
+    for site in sites:
         #
         # Antenna Operations costs
         # todo - don't we have operations costs for existing sites too?
         #
+        siteindex = site.name
+
         operation_costs.loc[:, siteindex] = 0
         autonomy_scenario = cost_config.autonomy_of_operations
         site_region = site.region
@@ -450,7 +462,7 @@ def calculate_operations_costs(cost_config, sites, const):
                 obs_days_per_year * \
                     const['site_development_values_table']\
                     .at['existing_site_rental_per_night', 'Value']
-                    
+
             operation_costs\
                 .at['total_local_labor_observation',siteindex] = total_local_labor_observation
 
@@ -484,7 +496,7 @@ def calculate_operations_costs(cost_config, sites, const):
     total_site_costs['Fulltime staff'] = cost_of_fulltime_staff
     new_site_costs['Fulltime staff'] = cost_of_fulltime_staff
 
-    return total_site_costs, new_site_costs
+    return total_site_costs, new_site_costs, site_costs
 
 
 ##
