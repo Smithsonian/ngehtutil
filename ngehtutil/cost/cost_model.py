@@ -444,6 +444,16 @@ def calculate_operations_costs(cost_config, sites, const):
             operation_costs\
                 .at['total_nonlocal_labor_maintenance',siteindex] = \
                     total_nonlocal_labor_maintenance
+        else:
+            # if it's an existing site, we just assume we have to pay $10k/night
+            total_local_labor_observation = \
+                obs_days_per_year * \
+                    const['site_development_values_table']\
+                    .at['existing_site_rental_per_night', 'Value']
+                    
+            operation_costs\
+                .at['total_local_labor_observation',siteindex] = total_local_labor_observation
+
 
         # Antenna operations - total local labor needed for maintenance
         local_labor_remote_maintenance = const['autonomy_mode_values_table']\
