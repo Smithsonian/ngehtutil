@@ -164,7 +164,7 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
     everything_per_site = pd.concat([per_site_cap_costs, per_site_ops_costs])
     everything_per_site.at['Data mgmt capital',:] = data_management_costs[['Site Recorders',
                                                             'Site Media']].sum() / total_sites_count
-    everything_per_site.at['Data mgmt perations',:] = data_management_costs[['Personnel',
+    everything_per_site.at['Data mgmt operations',:] = data_management_costs[['Personnel',
                                                         'Holding Data Storage Costs',
                                                         'Fast Data Storage Costs',
                                                         'Transfer Costs',
