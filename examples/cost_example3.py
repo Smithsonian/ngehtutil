@@ -19,7 +19,13 @@ def main():
         hours_per_observation=60*8,
         no_upgrade = ['ALMA', 'NOEMA', 'SMA']
     )
-    array = Array.from_name('ngEHT Ref. Array 1.1A + EHT2022')
+
+
+    site_names = ['OVRO', 'CNI', 'BAJA', 'LAS', 'HAY', 'PIKE', 'BOL', 'CAT', 'BRZ', 'GAM'] + \
+        Array.get_station_names("eht2022")
+    
+    # array = Array.from_name('ngEHT Ref. Array 1.1A + EHT2022')
+    array = Array('Phase 1 + 2', [Station.from_name(x) for x in site_names])
     costs, site_costs = calculate_costs(config, array.stations())
     
     print(f'array: {array}')
