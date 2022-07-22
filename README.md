@@ -1,6 +1,6 @@
-# ngeht-util - Utilities for ngEHT
+# ngehtutil - Utilities for ngEHT
 
-*ngeht-util* is a library of python modules to help in the design, development, and analysis of the
+*ngehtutil* is a library of python modules to help in the design, development, and analysis of the
 ngEHT VLBI telescope. It consists of four models: station, source, target, and cost.
 
 One purpose of the system is to maintain a database of known sites, array definitions, source
@@ -11,10 +11,10 @@ loaded, the database of these known items is loaded and ready for use.
 ## Installation
 
 The library is installed using pip, and it is recommended to use a virtual environment. The library
-is installed directly from github. To install the latest plus its dependencies:
+is installed from pypi. To install the latest plus its dependencies:
 
-    pip install git+https://github.com/Smithsonian/ngeht-util.git
-
+    pip install ngehtutil
+    
 ## Architecture
 
 ![plot](./doc/ngeht-util.png)
