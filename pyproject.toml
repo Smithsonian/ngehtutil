@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ngehtutil"
+version = "1.0.0"
+authors = [
+  { name="Aaron Oppenheimer", email="aaron.oppenheimer@cfa.harvard.edu" },
+  { name="Mark Freeman", email="mfreeman@cfa.harvard.edu" },
+]
+description = "A set of utilities for describing VLBI arrays, stations, costs, weather, etc."
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Smithsonian/ngeht-util"
+"Bug Tracker" = "https://github.com/Smithsonian/ngeht-util/issues"
