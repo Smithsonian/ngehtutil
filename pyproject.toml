@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ngehtutil"
-version = "1.0.0"
+version = "1.0.3"
 authors = [
   { name="Aaron Oppenheimer", email="aaron.oppenheimer@cfa.harvard.edu" },
   { name="Mark Freeman", email="mfreeman@cfa.harvard.edu" },
@@ -18,7 +18,16 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    'pandas >= 1.4.1',
+    'openpyxl >= 3.0.9',
+    'Pillow >= 9.0.1',
+    'ehtim >= 1.2.3',
+    'jupyter-console >= 6.4.3',
+    'requests >= 2.27.1'
+]
 
 [project.urls]
 "Homepage" = "https://github.com/Smithsonian/ngeht-util"
 "Bug Tracker" = "https://github.com/Smithsonian/ngeht-util/issues"
+
