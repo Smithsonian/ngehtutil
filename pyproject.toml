@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ngehtutil"
-version = "1.0.3"
+version = "1.0.4"
 authors = [
   { name="Aaron Oppenheimer", email="aaron.oppenheimer@cfa.harvard.edu" },
   { name="Mark Freeman", email="mfreeman@cfa.harvard.edu" },
@@ -28,6 +28,6 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/Smithsonian/ngeht-util"
-"Bug Tracker" = "https://github.com/Smithsonian/ngeht-util/issues"
+"Homepage" = "https://github.com/Smithsonian/ngehtutil"
+"Bug Tracker" = "https://github.com/Smithsonian/ngehtutil/issues"
 
