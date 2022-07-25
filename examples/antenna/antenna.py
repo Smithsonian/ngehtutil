@@ -24,7 +24,11 @@ def make_array():
     stns = array.stations()
     # we want to have a few extras, just pick an average station and add a few
     s = Station.from_name('BAR')
-    array.stations(stns + [s]*4)
+    for i in range(0,4):
+        s=copy(s)
+        s.name=f'{s.name}{i}'
+        stns.append(s)
+    array.stations(stns)
     return array
 
 
