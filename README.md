@@ -438,3 +438,18 @@ The cost module has a few functions to calculate costs:
     total, new = calculate_operating_costs(cost_config, stations, cost_constants)
     # returns a pandas series containing only the operating costs for stations. Total is for all of
     # the stations; new only includes stations for which a dish must be built.
+
+---
+
+# Versioning scheme
+
+ngehtutil uses a semantic versioning as described [here](https://semver.org/): MAJOR.MINOR.PATCH. We use [tbump](https://pypi.org/project/tbump/) to manage this. `tbump X.Y.Z` will do the following:
+
+- change the version hardcoded in version.py
+- commit the change
+- create a new tag called 'vX.Y.Z'
+- push to github
+
+The [github repository](https://github.com/Smithsonian/ngehtutil) has an action that detects a new tag. This action will push the new version of the code to [pypi](https://pypi.org/project/ngehtutil/) where it can be installed using pip.
+
+From within any code that imports ngehtutil, the current version can be accessed at ngehtutil.version.VERSION .
