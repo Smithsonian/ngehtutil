@@ -107,3 +107,6 @@ Finally, `Computation Costs` are the costs to actually do the math.
 Media costs are calculated using the "media on-hand" constant, which dictates how much storage a site must hold. Since the storage is recycled, this is less than the data actually needed to store.
 
 Finally, the data must be shipped, so `Data Shipping` is used to hold the calculation of shipping per petabyte * number of PB recorded.
+
+# Other Stuff
+The project uses tbump for tracking version numbers and github tag synchronizations
