@@ -25,6 +25,9 @@ tag_template = "v{new_version}"
 [[file]]
 src = "pyproject.toml"
 
+[[file]]
+src = "ngehtutil/version.py"
+
 # You can specify a list of commands to
 # run after the files have been patched
 # and before the git commit is made
