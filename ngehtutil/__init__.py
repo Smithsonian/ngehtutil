@@ -13,4 +13,4 @@ from .campaign import *
 from .station import *
 from .array import *
 from .program import *
-from version import VERSION
+from .version import VERSION

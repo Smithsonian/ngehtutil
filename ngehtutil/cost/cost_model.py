@@ -14,6 +14,7 @@ import logging
 import os
 import pandas as pd
 from ngehtutil.station import Station
+from ngehtutil.version import VERSION
 import math
 
 # constants from file - we don't want to have to read these every time
@@ -87,7 +88,7 @@ def calculate_costs(cost_config, sites, cost_constants=None, const_filename=None
     #
     array_stats = {}
     # add a row just to hold the name of the category.
-    array_stats['ARRAY STATS'] = ''
+    array_stats['ARRAY STATS'] = VERSION
 
     total_sites_count = len(sites)
     # new_sites = sites.loc[:,sites.loc['eht']==0].to_dict()
