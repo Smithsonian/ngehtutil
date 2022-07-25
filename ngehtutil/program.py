@@ -36,6 +36,6 @@ class Program:
         for k,v in kwargs.items():
             setattr(config, k, v)
 
-        costs, _ = calculate_costs(config, self.array.stations())
-        return costs
+        costs, site_costs = calculate_costs(config, self.array.stations())
+        return costs, site_costs
 
