@@ -1,3 +1,8 @@
+.. image:: https://img.shields.io/pypi/v/ngehtutil.svg
+  :target: https://pypi.org/project/ngehtutil/
+  
+
+
 # ngehtutil - Utilities for ngEHT
 
 *ngehtutil* is a library of python modules to help in the design, development, and analysis of the
