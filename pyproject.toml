@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ngehtutil"
-version = "1.0.19"
+version = "1.0.20"
 authors = [
   { name="Aaron Oppenheimer", email="aaron.oppenheimer@cfa.harvard.edu" },
   { name="Mark Freeman", email="mfreeman@cfa.harvard.edu" },
