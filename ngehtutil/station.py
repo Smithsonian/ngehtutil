@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from ngehtutil.station_weather import get_weather_data
+from copy import deepcopy
 
 _THE_STATIONS = None
 
@@ -73,7 +74,7 @@ class Station:
     @staticmethod
     def from_name(name):
         """ Returns a station object from a name. """
-        return _THE_STATIONS[name]
+        return deepcopy(_THE_STATIONS[name])
 
     @staticmethod
     def get_all():

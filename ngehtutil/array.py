@@ -13,6 +13,7 @@ from pathlib import Path
 import numpy as np
 import ehtim as eh
 from .station import Station
+from copy import copy
 
 _THE_ARRAYS = None
 

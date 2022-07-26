@@ -84,3 +84,12 @@ class TestClass(unittest.TestCase):
         stn3 = Station(name="s1")
         with self.assertRaises(ValueError):
             _ = Array(name="test", stations=[stn1, stn2, stn3])
+
+    def test_station_immutable(self):
+        """ make sure that when we request a station, we can't change it for other people """
+        cni = Station.from_name("CNI")
+        self.assertTrue(cni.dishes is None)
+        cni.set_diameter(9)
+        self.assertTrue(isinstance(cni.dishes, list))
+        cni2 = Station.from_name("CNI")
+        self.assertTrue(cni2.dishes is None)
