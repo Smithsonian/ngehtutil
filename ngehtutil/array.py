@@ -9,9 +9,9 @@ Manage things to do with arrays
 Originator: Aaron Oppenheimer March 2020
 """
 import csv
+from pathlib import Path
 import numpy as np
 import ehtim as eh
-from pathlib import Path
 from .station import Station
 
 _THE_ARRAYS = None
@@ -75,13 +75,13 @@ class Array:
     def stations(self, stns = None):
         """ return the stations comprising this array, or set it """
         if stns:
-            if not type(stns) is list:
+            if not isinstance(stns,list):
                 raise ValueError("Can only add lists of Stations to an array")
-            if not sum([1 if type(x) is Station else 0 for x in stns]) == len(stns):
+            if not sum([1 if isinstance(x, Station) else 0 for x in stns]) == len(stns):
                 raise ValueError("Can only add lists of Stations to an array")
             names = [s.name for s in stns]
-            for i,n in enumerate(names[:-1]):
-                if n in names[i+1:]:
+            for i,name in enumerate(names[:-1]):
+                if name in names[i+1:]:
                     raise ValueError("Can't have stations with duplicate names in an array")
 
             self._stations = stns
@@ -91,11 +91,11 @@ class Array:
     def to_ehtim_array(self, freq, filled=0.7, month=5):
         """
         Returns an ehtim array object.
-         
-         freq is the measurement frequency (GHz)
-         filled is the geometric filling factor (unobscured telescope fraction)
-         month is the observation month (1-12)
-        
+
+        freq is the measurement frequency (GHz)
+        filled is the geometric filling factor (unobscured telescope fraction)
+        month is the observation month (1-12)
+
         """
         tarr = np.recarray(len(self.stations()),dtype=eh.const_def.DTARR)
         for isite, site in enumerate(self.stations()):
