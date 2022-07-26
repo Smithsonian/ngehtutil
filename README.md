@@ -1,5 +1,4 @@
-.. image:: https://img.shields.io/pypi/v/ngehtutil.svg
-  :target: https://pypi.org/project/ngehtutil/
+[![](https://img.shields.io/pypi/v/ngehtutil.svg)](https://pypi.org/project/ngehtutil/)
   
 
 
