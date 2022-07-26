@@ -1,6 +1,5 @@
 [![](https://img.shields.io/pypi/v/ngehtutil.svg)](https://pypi.org/project/ngehtutil/)
-  
-
+[![](https://github.com/smithsonian/ngehtutil/workflows/Testing/badge.svg)](https://github.com/smithsonian/ngehtutil/actions)
 
 # ngehtutil - Utilities for ngEHT
 
