@@ -72,9 +72,9 @@ class TestClass(unittest.TestCase):
         """ show that we get weather data out of known stations """
         station = Station.from_name('HAY')
         data = station.get_weather('SEFD_info_230',2009,8,16)
-        self.assertTrue(isinstance(data['data']), list)
+        self.assertTrue(isinstance(data['data'], list))
         self.assertTrue(len(data['data']) > 0)
-        self.assertTrue(isinstance(data['data'][0]), tuple)
+        self.assertTrue(isinstance(data['data'][0], tuple))
         delete_sites()
 
     def test_station_dupes(self):
