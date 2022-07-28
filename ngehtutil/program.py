@@ -1,8 +1,8 @@
 """
 Classes to describe VLBI program
 """
-from lib2to3.pytree import type_repr
 from ngehtutil import calculate_costs, CostConfig, Campaign, Array
+
 
 class Program:
     array = None
@@ -18,8 +18,12 @@ class Program:
         self.campaign = campaign
 
     def calculate_costs(self, **kwargs):
-        """ Use the cost model to figure out what an array and campaigns cost. """
-        """ Pass in CostConfig attributes to override them. """
+        """
+        Use the cost model to figure out what an array and
+        campaigns cost.
+
+        Pass in CostConfig attributes to override them.
+        """
 
         if type(self.array) is not Array:
             raise ValueError("Program not configured with an Array")
@@ -33,9 +37,8 @@ class Program:
         config.hours_per_observation = self.campaign.schedule.obs_hours
         config.recording_frequencies = 1
 
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             setattr(config, k, v)
 
         costs, site_costs = calculate_costs(config, self.array.stations())
         return costs, site_costs
-
