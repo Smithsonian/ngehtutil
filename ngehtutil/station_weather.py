@@ -31,7 +31,7 @@ monthmap = {
     12: '12Dec'
 }
 
-urlbase = 'https://raw.githubusercontent.com/Smithsonian/ngeht-weather/main/weather_data'
+urlbase = 'https://raw.githubusercontent.com/Smithsonian/ngeht-weather/main/weather_data'  # noqa: E501
 filenames = [
             'RH.csv',
             'SEFD_info_230.csv',
@@ -43,26 +43,28 @@ filenames = [
             'wind_speed.csv',
         ]
 
-homepath=str(Path(__file__).parent) + '/weather_data'
+homepath = str(Path(__file__).parent) + '/weather_data'
+
 
 def load_site(sitename, months=None):
     """ Makes sure we have the data for a site for the given months, which is
         a list of month numbers 1-12, or None which means all. """
 
     if not months:
-        months = list(range(1,13))
+        months = list(range(1, 13))
     else:
         if type(months) is int:
-            months=[months]
+            months = [months]
         if not all(x >= 1 and x <= 12 for x in months):
             raise ValueError('Months must be between 1 and 12')
 
     fetched = 0
 
     months = \
-        [x for x in months if not os.path.exists(f'{homepath}/{sitename}/{monthmap[x]}/RH.csv')]
+        [x for x in months if not
+            os.path.exists(f'{homepath}/{sitename}/{monthmap[x]}/RH.csv')]
     if len(months) == 0:
-        return 0 # nothing to load
+        return 0  # nothing to load
 
     # make sure the target directory is here
     if not os.path.isdir(homepath):
@@ -78,8 +80,10 @@ def load_site(sitename, months=None):
             urlpath = f'{urlbase}/{sitename}/{monthmap[m]}/{f}'
             r = requests.get(urlpath, allow_redirects=True)
             if r.status_code == 404:
-                raise ValueError('no such weather data file for {sitename} {monthmap[m]}')
-            open(f'{homepath}/{sitename}/{monthmap[m]}/{f}','w').write(r.content.decode("utf-8"))
+                raise ValueError(
+                    'no such weather data file for {sitename} {monthmap[m]}')
+            fp = open(f'{homepath}/{sitename}/{monthmap[m]}/{f}', 'w')
+            fp.write(r.content.decode("utf-8"))
             fetched = fetched + 1
 
     return fetched
@@ -103,11 +107,11 @@ def get_weather_data(site, type, year, month, day):
     file = f'{homepath}/{site}/{monthmap[month]}/{type}.csv'
     data = pd.read_csv(file, comment='#')
 
-    ret_data = list((data[(data.loc[:,'year']==year) & \
-        (data.loc[:,'day']==day)].iloc[:,3:]).itertuples(name=None, index=False))
+    ret_data = list((data[(data.loc[:, 'year'] == year) &
+        (data.loc[:, 'day']==day)].iloc[:, 3:]).itertuples(name=None, index=False))  # noqa E128
 
-    ret = {'index':list(data.columns[3:]),
-            'data': ret_data if ret_data else None
-            }
+    ret = {'index': list(data.columns[3:]),
+           'data': ret_data if ret_data else None
+           }
     return ret
     # return ret[0] if len(ret)==1 else None if len(ret)==0 else ret
