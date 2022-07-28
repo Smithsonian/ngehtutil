@@ -13,9 +13,9 @@ from pathlib import Path
 import numpy as np
 import ehtim as eh
 from .station import Station
-from copy import copy
 
 _THE_ARRAYS = None
+
 
 def _init_arrays():
     """ do the initial setup on arrays """
@@ -24,17 +24,21 @@ def _init_arrays():
 
         # set up the arrays, which are just lists of station codes
         _THE_ARRAYS = {}
-        path=str(Path(__file__).parent) + '/config'
+        path = str(Path(__file__).parent) + '/config'
         with open(f'{path}/arrays.csv', newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             for row in reader:
                 _THE_ARRAYS[row[0]] = [x for x in row[1:] if x]
+
+
 _init_arrays()
+
 
 class Array:
     """
-    Class to represent an Array, comprising a set of Station objects. The module loads a set
-    of known arrays that can be accessed through class methods.
+    Class to represent an Array, comprising a set of Station objects.
+    The module loads a set of known arrays that can be accessed through
+    class methods.
     """
     name = None
     _stations = []
@@ -46,7 +50,9 @@ class Array:
 
     @classmethod
     def get_default_array_name(cls):
-        """ Returns the name of the first known array in the builtin database """
+        """
+        Returns the name of the first known array in the builtin database
+        """
         return cls.get_list()[0]
 
     @classmethod
@@ -62,8 +68,8 @@ class Array:
     @classmethod
     def from_name(cls, name):
         """
-        Returns an Array object from the database by name. Will raise an exception if the
-        array name is unknown.
+        Returns an Array object from the database by name. Will raise an
+        exception if the array name is unknown.
         """
         stations = [Station.from_name(x) for x in _THE_ARRAYS[name]]
         return cls(name, stations)
@@ -73,17 +79,20 @@ class Array:
         self.name = name if name else '[none]'
         self.stations(stations)
 
-    def stations(self, stns = None):
+    def stations(self, stns=None):
         """ return the stations comprising this array, or set it """
         if stns:
-            if not isinstance(stns,list):
+            if not isinstance(stns, list):
                 raise ValueError("Can only add lists of Stations to an array")
-            if not sum([1 if isinstance(x, Station) else 0 for x in stns]) == len(stns):
+            if not sum([1 if isinstance(x, Station) else 0 for x in stns]) \
+                    == len(stns):
                 raise ValueError("Can only add lists of Stations to an array")
             names = [s.name for s in stns]
-            for i,name in enumerate(names[:-1]):
+            for i, name in enumerate(names[:-1]):
                 if name in names[i+1:]:
-                    raise ValueError("Can't have stations with duplicate names in an array")
+                    raise ValueError(
+                        "Can't have stations with duplicate names in an array"
+                    )
 
             self._stations = stns
 
@@ -98,10 +107,10 @@ class Array:
         month is the observation month (1-12)
 
         """
-        tarr = np.recarray(len(self.stations()),dtype=eh.const_def.DTARR)
+        tarr = np.recarray(len(self.stations()), dtype=eh.const_def.DTARR)
         for isite, site in enumerate(self.stations()):
             xyz = site.xyz()
-            SEFD = site.SEFD(freq,site.elevation,filled=filled,month=month)
+            SEFD = site.SEFD(freq, site.elevation, filled=filled, month=month)
             tarr[isite]['site'] = site.name
             tarr[isite]['x'] = xyz[0]
             tarr[isite]['y'] = xyz[1]
