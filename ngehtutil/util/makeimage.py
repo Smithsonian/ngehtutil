@@ -18,5 +18,6 @@ def main():
         im = eh.image.load_image(filepath)
         im.display(show=False, export_pdf=f"models/{fileroot}.pdf")
 
+
 if __name__ == "__main__":
     main()
