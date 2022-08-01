@@ -9,12 +9,18 @@ Cost model code
 Originator: Aaron Oppenheimer March 2020
 """
 
+
 class CostConfig:
-    dish_size = 6 # Size for new dishes - must be 4, 6, 8, 10
-    autonomy_of_operations = 'Manual' # one of 'Manual' 'Somewhat Autonomous' 'Semi-Autonomous'
-                                      # or 'Fully Autonomous'
-    data_management = 'Own Cluster' # one of 'Own Cluster' 'Research Cluster' 'Cloud'
-    recording_bandwidth = 8 # in GHz
+    # Size for new dishes - must be 4, 6, 8, 10
+    dish_size = 6
+
+    # one of 'Manual' 'Somewhat Autonomous' 'Semi-Autonomous'
+    # or 'Fully Autonomous'
+    autonomy_of_operations = 'Manual'
+
+    # one of 'Own Cluster' 'Research Cluster' 'Cloud'
+    data_management = 'Own Cluster'
+    recording_bandwidth = 8  # in GHz
     recording_frequencies = 2
     start_building = 2025
     fully_operational = 2030
@@ -23,13 +29,15 @@ class CostConfig:
     observations_per_year = 1
     days_per_observation = 3
     hours_per_observation = 30
-    no_upgrade = [] # sites to skip when calculating costs for receiver, backend, etc.
+
+    # sites to skip when calculating costs for receiver, backend, etc.
+    no_upgrade = []
 
     def __init__(self, **kwargs):
         """
         Pass in values to override defaults
         """
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             if not hasattr(self, k):
                 raise KeyError(f'no configuration key "{k}"')
             setattr(self, k, v)
